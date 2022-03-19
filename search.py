@@ -68,7 +68,7 @@ def _generic_search(problem, fringe):
         if problem.is_goal_state(current):
             return actions
 
-        if current not in closed:
+        elif current not in closed:
             for (node, action, _) in problem.get_successors(current):
                 fringe.push(node)
 

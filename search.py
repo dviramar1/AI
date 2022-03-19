@@ -58,15 +58,13 @@ def _generic_search(problem, fringe):
         fringe (object): A fringe to keep the element in
     """
 
-    i = 0  # TODO: delete, it is for debugging
-
     fringe.push((problem.get_start_state(), []))
     closed = []
 
     while not fringe.isEmpty():
-        i += 1  # TODO: delete
-        print(i)
+
         curr_state, curr_actions = fringe.pop()
+        print(curr_state)  # TODO: delete
 
         if problem.is_goal_state(curr_state):
             return curr_actions

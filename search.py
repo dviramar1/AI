@@ -49,6 +49,28 @@ class SearchProblem:
         util.raiseNotDefined()
 
 
+def _generic_search(problem, fringe):
+    """
+    Implements a generic search using the given fringe
+
+    Args:
+        problem (_type_): The problem to search on
+        fringe (object): A fringe to keep the element in
+    """
+
+    fringe.push((problem.get_start_state(), []))
+    closed = []
+
+    while not fringe.isEmpty():
+
+        curr_state, curr_actions = fringe.pop()
+        if problem.is_goal_state(curr_state):
+            return curr_actions
+
+        elif curr_state not in closed:
+            for (node, action, _) in problem.get_successors(curr_state):
+                fringe.push((node, curr_actions + [action]))
+            closed += [curr_state]
 
 
 def depth_first_search(problem):
@@ -65,16 +87,14 @@ def depth_first_search(problem):
     print("Is the start a goal?", problem.is_goal_state(problem.get_start_state()))
     print("Start's successors:", problem.get_successors(problem.get_start_state()))
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return _generic_search(problem, util.Stack())
 
 
 def breadth_first_search(problem):
     """
     Search the shallowest nodes in the search tree first.
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return _generic_search(problem, util.Queue())
 
 
 def uniform_cost_search(problem):
@@ -99,7 +119,6 @@ def a_star_search(problem, heuristic=null_heuristic):
     """
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
-
 
 
 # Abbreviations

@@ -49,6 +49,28 @@ class SearchProblem:
         util.raiseNotDefined()
 
 
+def _generic_search(problem, fringe):
+    """
+    Implements a generic search using the given fring
+
+    Args:
+        problem (_type_): The problem to search on
+        fringe (object): A fringe to keep the element in
+    """
+
+    fringe.push(problem.get_start_state())
+    actions = []
+    closed = []
+
+    while not fringe.isEmpty():
+        current = fringe.pop()
+
+        if problem.is_goal_state(current):
+            return actions
+
+        if current not in closed:
+           for (node, action, _) in problem.get_successors(current):
+               fringe.push(node)
 
 
 def depth_first_search(problem):

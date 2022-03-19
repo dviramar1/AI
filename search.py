@@ -64,8 +64,6 @@ def _generic_search(problem, fringe):
     while not fringe.isEmpty():
 
         curr_state, curr_actions = fringe.pop()
-        print(curr_state)  # TODO: delete
-
         if problem.is_goal_state(curr_state):
             return curr_actions
 

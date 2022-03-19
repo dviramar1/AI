@@ -51,26 +51,30 @@ class SearchProblem:
 
 def _generic_search(problem, fringe):
     """
-    Implements a generic search using the given fring
+    Implements a generic search using the given fringe
 
     Args:
         problem (_type_): The problem to search on
         fringe (object): A fringe to keep the element in
     """
 
-    fringe.push(problem.get_start_state())
-    actions = []
+    i = 0  # TODO: delete, it is for debugging
+
+    fringe.push((problem.get_start_state(), []))
     closed = []
 
     while not fringe.isEmpty():
-        current = fringe.pop()
+        i += 1  # TODO: delete
+        print(i)
+        curr_state, curr_actions = fringe.pop()
 
-        if problem.is_goal_state(current):
-            return actions
+        if problem.is_goal_state(curr_state):
+            return curr_actions
 
-        elif current not in closed:
-            for (node, action, _) in problem.get_successors(current):
-                fringe.push(node)
+        elif curr_state not in closed:
+            for (node, action, _) in problem.get_successors(curr_state):
+                fringe.push((node, curr_actions + [action]))
+            closed += [curr_state]
 
 
 def depth_first_search(problem):
@@ -88,7 +92,7 @@ def depth_first_search(problem):
     print("Start's successors:", problem.get_successors(problem.get_start_state()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return _generic_search(problem, util.Stack())
 
 
 def breadth_first_search(problem):

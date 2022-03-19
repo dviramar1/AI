@@ -69,8 +69,8 @@ def _generic_search(problem, fringe):
             return actions
 
         if current not in closed:
-           for (node, action, _) in problem.get_successors(current):
-               fringe.push(node)
+            for (node, action, _) in problem.get_successors(current):
+                fringe.push(node)
 
 
 def depth_first_search(problem):
@@ -121,7 +121,6 @@ def a_star_search(problem, heuristic=null_heuristic):
     """
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
-
 
 
 # Abbreviations

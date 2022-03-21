@@ -1,8 +1,8 @@
 import util
-from search import dfs, bfs
+from search import dfs, bfs, ucs, SearchProblem
 
 
-class TestSearchProblem:
+class TestSearchProblem(SearchProblem):
     """
     This class outlines the structure of a search problem, but doesn't implement
     any of the methods (in object-oriented terminology: an abstract class).
@@ -11,7 +11,7 @@ class TestSearchProblem:
     """
 
     def __init__(self):
-        self.tree = {"a": ["b", "c"], "b": ["d", "e"], "c": ["f", "g"]}
+        self.tree = {"a": [("b", 0), ("c", 1)], "b": [("d", 2), ("e", 0)], "c": [("f", 0), ("g", 1)]}
 
     def get_start_state(self):
         """
@@ -25,7 +25,7 @@ class TestSearchProblem:
 
         Returns True if and only if the state is a valid goal state
         """
-        return state == "d"
+        return state == "g"
 
     def get_successors(self, state):
         """
@@ -38,10 +38,12 @@ class TestSearchProblem:
         cost of expanding to that successor
         """
         if state in self.tree:
-            nodes = self.tree[state]
+            nodes = [item[0] for item in self.tree[state]]
+            costs = [item[1] for item in self.tree[state]]
         else:
             nodes = []
-        return list(zip(nodes, nodes, [1] * len(nodes)))
+            costs = []
+        return list(zip(nodes, nodes, costs))
 
     def get_cost_of_actions(self, actions):
         """
@@ -50,11 +52,17 @@ class TestSearchProblem:
         This method returns the total cost of a particular sequence of actions.  The sequence must
         be composed of legal moves
         """
-        util.raiseNotDefined()
+        print(actions)
+        return 0
+        # if "c" in actions:
+        #     return 2
+        # return 1
 
 
 if __name__ == '__main__':
-    dfs_actions = dfs(TestSearchProblem())
-    print(dfs_actions)
-    bfs_actions = bfs(TestSearchProblem())
-    print(bfs_actions)
+    # dfs_actions = dfs(TestSearchProblem())
+    # print(dfs_actions)
+    # bfs_actions = bfs(TestSearchProblem())
+    # print(bfs_actions)
+    ucs_actions = ucs(TestSearchProblem())
+    print(ucs_actions)

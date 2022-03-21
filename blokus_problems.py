@@ -109,9 +109,9 @@ def blokus_corners_heuristic(state, problem):
 
 class BlokusCoverProblem(SearchProblem):
     def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0), targets=[(0, 0)]):
+        self.board = Board(board_w, board_h, 1, piece_list, starting_point)
         self.targets = targets.copy()
         self.expanded = 0
-        "*** YOUR CODE HERE ***"
 
     def get_start_state(self):
         """
@@ -120,8 +120,8 @@ class BlokusCoverProblem(SearchProblem):
         return self.board
 
     def is_goal_state(self, state):
-        for target in self.argets:
-            if state.get_position(target) != 0:
+        for target in self.targets:
+            if state.get_position(*target) != 0:
                 return False
         return True
 

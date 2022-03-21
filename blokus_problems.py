@@ -100,7 +100,7 @@ def tiles_distance(p1, p2):
 def is_tile_corner(state, p):
     neighbors = [state.get_position(p[0], p[1]), state.get_position(p[0], p[1] + 1), state.get_position(p[0] + 1, p[1]),
                  state.get_position(p[0] + 1, p[1] + 1)]
-    return sum(map(neighbors, lambda x: x == 0))
+    return sum(map(lambda x: x == 0, neighbors))
 
 
 def blokus_corners_heuristic(state, problem):

@@ -1,8 +1,12 @@
 """
 In search.py, you will implement generic search algorithms
 """
+from dataclasses import dataclass
+
+from typing import List
 
 import util
+from board import Board
 
 
 class SearchProblem:
@@ -49,7 +53,17 @@ class SearchProblem:
         util.raiseNotDefined()
 
 
-def _generic_search(problem, fringe):
+@dataclass
+class SearchItem:
+    state: Board
+    actions: List
+
+    def __iter__(self):
+        yield self.state
+        yield self.actions
+
+
+def _generic_search(problem, fringe, use_cost=False):
     """
     Implements a generic search using the given fringe
 
@@ -58,18 +72,25 @@ def _generic_search(problem, fringe):
         fringe (object): A fringe to keep the element in
     """
 
-    fringe.push((problem.get_start_state(), []))
+    if use_cost:
+        fringe.push(SearchItem(problem.get_start_state(), []), 0)
+    else:
+        fringe.push(SearchItem(problem.get_start_state(), []))
     closed = []
 
     while not fringe.isEmpty():
-
         curr_state, curr_actions = fringe.pop()
+        print(curr_state)  # TODO: remove
+
         if problem.is_goal_state(curr_state):
             return curr_actions
 
         elif curr_state not in closed:
-            for (node, action, _) in problem.get_successors(curr_state):
-                fringe.push((node, curr_actions + [action]))
+            for (node, action, cost) in problem.get_successors(curr_state):
+                if use_cost:
+                    fringe.push(SearchItem(node, curr_actions + [action]), cost)
+                else:
+                    fringe.push(SearchItem(node, curr_actions + [action]))
             closed += [curr_state]
 
 
@@ -101,8 +122,7 @@ def uniform_cost_search(problem):
     """
     Search the node of least total cost first.
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return _generic_search(problem, util.PriorityQueue(), use_cost=True)
 
 
 def null_heuristic(state, problem=None):

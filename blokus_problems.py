@@ -50,7 +50,6 @@ class BlokusFillProblem(SearchProblem):
         return len(actions)
 
 
-
 class BlokusCornersProblem(SearchProblem):
     def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0)):
         self.board = Board(board_w, board_h, 1, piece_list, starting_point)
@@ -91,6 +90,7 @@ class BlokusCornersProblem(SearchProblem):
         """
         return sum(action.piece.get_num_tiles() for action in actions)
 
+
 def blokus_corners_heuristic(state, problem):
     """
     Your heuristic for the BlokusCornersProblem goes here.
@@ -120,8 +120,10 @@ class BlokusCoverProblem(SearchProblem):
         return self.board
 
     def is_goal_state(self, state):
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        for target in self.argets:
+            if state.get_position(target) != 0:
+                return False
+        return True
 
     def get_successors(self, state):
         """
@@ -144,8 +146,7 @@ class BlokusCoverProblem(SearchProblem):
         This method returns the total cost of a particular sequence of actions.  The sequence must
         be composed of legal moves
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return sum(action.piece.get_num_tiles() for action in actions)
 
 
 def blokus_cover_heuristic(state, problem):
@@ -193,7 +194,6 @@ class ClosestLocationSearch:
         util.raiseNotDefined()
 
 
-
 class MiniContestSearch:
     """
     Implement your contest entry here
@@ -212,4 +212,3 @@ class MiniContestSearch:
     def solve(self):
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
-

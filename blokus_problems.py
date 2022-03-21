@@ -51,13 +51,10 @@ class BlokusFillProblem(SearchProblem):
 
 
 
-#####################################################
-# This portion is incomplete.  Time to write code!  #
-#####################################################
 class BlokusCornersProblem(SearchProblem):
     def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0)):
+        self.board = Board(board_w, board_h, 1, piece_list, starting_point)
         self.expanded = 0
-        "*** YOUR CODE HERE ***"
 
     def get_start_state(self):
         """
@@ -66,8 +63,10 @@ class BlokusCornersProblem(SearchProblem):
         return self.board
 
     def is_goal_state(self, state):
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return (state.get_position(0, 0) == 0 and
+                state.get_position(0, self.board.board_h - 1) == 0 and
+                state.get_position(self.board.board_w - 1, self.board.board_h - 1) == 0 and
+                state.get_position(self.board.board_w - 1, 0) == 0)
 
     def get_successors(self, state):
         """
@@ -90,9 +89,7 @@ class BlokusCornersProblem(SearchProblem):
         This method returns the total cost of a particular sequence of actions.  The sequence must
         be composed of legal moves
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        return sum(action.piece.get_num_tiles() for action in actions)
 
 def blokus_corners_heuristic(state, problem):
     """

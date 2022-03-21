@@ -49,7 +49,7 @@ class SearchProblem:
         util.raiseNotDefined()
 
 
-def _generic_search(problem, fringe):
+def _generic_search(problem, fringe, use_cost=False):
     """
     Implements a generic search using the given fringe
 
@@ -68,8 +68,8 @@ def _generic_search(problem, fringe):
             return curr_actions
 
         elif curr_state not in closed:
-            for (node, action, _) in problem.get_successors(curr_state):
-                fringe.push((node, curr_actions + [action]))
+            for (node, action, cost) in problem.get_successors(curr_state):
+                fringe.push((node, curr_actions + [action]), cost)
             closed += [curr_state]
 
 
@@ -101,8 +101,7 @@ def uniform_cost_search(problem):
     """
     Search the node of least total cost first.
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return _generic_search(problem, util.PriorityQueue(), use_cost=True)
 
 
 def null_heuristic(state, problem=None):

@@ -2,6 +2,7 @@
 In search.py, you will implement generic search algorithms
 """
 from dataclasses import dataclass
+from tkinter import W
 
 from typing import List
 
@@ -63,7 +64,7 @@ class SearchItem:
         yield self.actions
 
 
-def _generic_search(problem, fringe, use_cost=False):
+def _generic_search(problem, fringe, use_cost=False, heuristic=None):
     """
     Implements a generic search using the given fringe
 
@@ -73,24 +74,27 @@ def _generic_search(problem, fringe, use_cost=False):
     """
 
     if use_cost:
-        fringe.push(SearchItem(problem.get_start_state(), []), 0)
+        priority = heuristic(problem.get_start_state(), problem) if heuristic else 0
+        fringe.push(SearchItem(problem.get_start_state(), []), priority)
     else:
         fringe.push(SearchItem(problem.get_start_state(), []))
     closed = []
 
     while not fringe.isEmpty():
         curr_state, curr_actions = fringe.pop()
-        print(curr_state)  # TODO: remove
 
         if problem.is_goal_state(curr_state):
             return curr_actions
 
         elif curr_state not in closed:
-            for (node, action, cost) in problem.get_successors(curr_state):
+            for (state, action, cost) in problem.get_successors(curr_state):
                 if use_cost:
-                    fringe.push(SearchItem(node, curr_actions + [action]), cost)
+                    priority = cost
+                    if heuristic:
+                        priority += heuristic(state, problem)
+                    fringe.push(SearchItem(state, curr_actions + [action]), priority)
                 else:
-                    fringe.push(SearchItem(node, curr_actions + [action]))
+                    fringe.push(SearchItem(state, curr_actions + [action]))
             closed += [curr_state]
 
 
@@ -137,8 +141,7 @@ def a_star_search(problem, heuristic=null_heuristic):
     """
     Search the node that has the lowest combined cost and heuristic first.
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return _generic_search(problem, util.PriorityQueue(), use_cost=True, heuristic=heuristic)
 
 
 # Abbreviations

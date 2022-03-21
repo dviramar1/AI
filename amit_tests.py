@@ -1,5 +1,5 @@
 import util
-from search import dfs, bfs, ucs, SearchProblem
+from search import dfs, bfs, ucs, astar, SearchProblem
 
 
 class TestSearchProblem(SearchProblem):
@@ -60,9 +60,11 @@ class TestSearchProblem(SearchProblem):
 
 
 if __name__ == '__main__':
-    # dfs_actions = dfs(TestSearchProblem())
-    # print(dfs_actions)
-    # bfs_actions = bfs(TestSearchProblem())
-    # print(bfs_actions)
+    dfs_actions = dfs(TestSearchProblem())
+    print(dfs_actions)
+    bfs_actions = bfs(TestSearchProblem())
+    print(bfs_actions)
     ucs_actions = ucs(TestSearchProblem())
     print(ucs_actions)
+    astar_actions = astar(TestSearchProblem())
+    print(astar_actions)

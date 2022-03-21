@@ -90,6 +90,12 @@ class BlokusCornersProblem(SearchProblem):
         """
         return sum(action.piece.get_num_tiles() for action in actions)
 
+def tiles_distance(p1, p2):
+    return max(abs(p2[0] - p1[0]), abs(p2[1] - p1[1]))
+
+def is_corner(state, p):
+    neighbors = [state.get_position(p[0], p[1]), state.get_position(p[0], p[1] + 1), state.get_position(p[0] + 1, p[1]), state.get_position(p[0] + 1, p[1] + 1)]
+    return sum(map(neighbors, lambda x: x == 0))
 
 def blokus_corners_heuristic(state, problem):
     """
@@ -103,8 +109,13 @@ def blokus_corners_heuristic(state, problem):
     your heuristic is *not* consistent, and probably not admissible!  On the other hand,
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    for corner in corners:
+    for x in range(self.board.board_w - 2):
+        for y in range(self.board.board_h - 2):
+            if is_corner((x, y)):
+                distance = 
+
 
 
 class BlokusCoverProblem(SearchProblem):

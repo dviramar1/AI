@@ -75,7 +75,7 @@ def print_state(state):
         new_rows.append(new_row)
     print('\n'.join(map(str, new_rows)))
     print()
-    sleep(1)
+    sleep(0.3)
 
 
 def _generic_search(problem: SearchProblem, fringe, use_cost=False, heuristic=None):

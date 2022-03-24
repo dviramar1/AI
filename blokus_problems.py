@@ -1,10 +1,13 @@
 import math
 import random
 from statistics import mean
+from scipy.stats import gmean
 
 from board import Board
 from search import SearchProblem, ucs
 import util
+
+BIG_NUMBER = 1000000
 
 
 class BlokusFillProblem(SearchProblem):
@@ -138,7 +141,6 @@ def mean_distance_heuristic(state, problem):
     corners_dists = get_corners_dists(state, problem)
     return mean(corners_dists)
 
-
 def get_covered_corners(state, problem):
     corners = [(0, 0), (0, problem.board.board_h - 1), (problem.board.board_w - 1, 0),
                (problem.board.board_w - 1, problem.board.board_h - 1)]
@@ -185,7 +187,7 @@ def detect_fails_heuristic(state, problem):
     if covered_corners == 4:
         return 0
     elif is_near_corner_covered(state, problem):
-        return 1000000
+        return BIG_NUMBER
     else:
         return 0
 
@@ -202,8 +204,12 @@ def blokus_corners_heuristic(state, problem):
     your heuristic is *not* consistent, and probably not admissible!  On the other hand,
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
-    return mean_distance_heuristic(state, problem) + covered_corners_heuristic(
-        state, problem)
+    detect_fails = True
+    if detect_fails:
+        if detect_fails_heuristic(state, problem) == BIG_NUMBER:
+            return BIG_NUMBER
+    alpha = 0.3
+    return alpha * covered_corners_heuristic(state, problem) + (1 - alpha) * mean_distance_heuristic(state, problem)
 
 
 class BlokusCoverProblem(SearchProblem):

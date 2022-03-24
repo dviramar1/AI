@@ -1,4 +1,5 @@
 import math
+import random
 from statistics import mean
 
 from board import Board
@@ -104,12 +105,12 @@ def is_tile_corner(state, p):
     return sum(map(lambda x: x == 0, neighbors))
 
 
-def max_distance_heuristics(state, problem):
+def get_corners_dists(state, problem):
     points_w = problem.board.board_w - 2
     points_h = problem.board.board_h - 2
 
     corners = [(0, 0), (0, points_h), (points_w, 0), (points_w, points_h)]
-    min_corners_dists = []
+    corners_dists = []
     for corner in corners:
         min_corner_dist = math.inf
         for x in range(points_w):
@@ -119,17 +120,74 @@ def max_distance_heuristics(state, problem):
                     corner_distance = tiles_distance(corner, curr_point)
                     if corner_distance < min_corner_dist:
                         min_corner_dist = corner_distance
-        min_corners_dists.append(min_corner_dist)
-    # print(min_corners_dists)
-    # print(max(min_corners_dists))
-    return max(min_corners_dists)
+        corners_dists.append(min_corner_dist)
+    return corners_dists
 
 
-def covered_corners_heuristic(state, problem):
+def max_distance_heuristic(state, problem):
+    corners_dists = get_corners_dists(state, problem)
+    return max(corners_dists)
+
+
+def min_distance_heuristic(state, problem):
+    corners_dists = get_corners_dists(state, problem)
+    return min(corners_dists)
+
+
+def mean_distance_heuristic(state, problem):
+    corners_dists = get_corners_dists(state, problem)
+    return mean(corners_dists)
+
+
+def get_covered_corners(state, problem):
     corners = [(0, 0), (0, problem.board.board_h - 1), (problem.board.board_w - 1, 0),
                (problem.board.board_w - 1, problem.board.board_h - 1)]
     covered_corners = sum(state.get_position(*corner) == 0 for corner in corners)
+    return covered_corners
+
+
+def covered_corners_heuristic(state, problem):
+    covered_corners = get_covered_corners(state, problem)
     return 4 - covered_corners
+
+
+def null_heuristic(state, problem):
+    return 0
+
+
+def random_heuristic(state, problem):
+    return random.randint(0, 10)
+
+
+def is_legal_position(position, problem):
+    return 0 <= position[0] <= problem.board.board_w - 1 and 0 <= position[1] <= problem.board.board_h - 1
+
+
+def is_near_corner_covered(state, problem):
+    corners = [(0, 0), (0, problem.board.board_h - 1), (problem.board.board_w - 1, 0),
+               (problem.board.board_w - 1, problem.board.board_h - 1)]
+    corners_neighbors = [
+        [(corner[0] + 1, corner[1]), (corner[0] - 1, corner[1]), (corner[0], corner[1] + 1), (corner[0], corner[1] - 1)]
+        for corner in corners]
+    corners_neighbors = [[pos for pos in cor_neigh if is_legal_position(pos, problem)] for cor_neigh in
+                         corners_neighbors]
+
+    for corner, corner_neighbors in zip(corners, corners_neighbors):
+        if state.get_position(*corner) != 0:
+            for neighbor in corner_neighbors:
+                if state.get_position(*neighbor) == 0:
+                    return True
+    return False
+
+
+def detect_fails_heuristic(state, problem):
+    covered_corners = get_covered_corners(state, problem)
+    if covered_corners == 4:
+        return 0
+    elif is_near_corner_covered(state, problem):
+        return 1000000
+    else:
+        return 0
 
 
 def blokus_corners_heuristic(state, problem):
@@ -144,8 +202,8 @@ def blokus_corners_heuristic(state, problem):
     your heuristic is *not* consistent, and probably not admissible!  On the other hand,
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
-    alpha = 0.2
-    return alpha * max_distance_heuristics(state, problem) + (1-alpha) * covered_corners_heuristic(state, problem)
+    return mean_distance_heuristic(state, problem) + covered_corners_heuristic(
+        state, problem)
 
 
 class BlokusCoverProblem(SearchProblem):

@@ -1,0 +1,25 @@
+***   6 X 6 - small board:   ***
+
+acs = null - Expanded nodes: 2809, score: 19
+random(0, 10) - not admissible - Expanded nodes: 466, score: 20 (this is random so might change)
+*GREAT* - covered corners  - Expanded nodes: *14*, score: 19
+max distance - buggy? / not admissible -  Expanded nodes: 689, score: 20
+mean distance - buggy? -  Expanded nodes: 1288, score: 19
+covered corners * 0.8 + random * 0.2 - not admissible - Expanded nodes: 235, score: 19 / Expanded nodes: *11*, score: 19
+near corners  (detect fails) - Expanded nodes: 1360, score: 19
+near corners + covered corners - Expanded nodes: *14*, score: 19
+
+***   8 X 8 - normal board:   ***
+detect fails - long run
+covered corners  - Expanded nodes: 626, score: 24
+*GOOD* - detect fails (near corners) + covered corners - Expanded nodes: *449*, score: 24
+max distance - Expanded nodes: 1877, score: 24
+max distance + detect fails - Expanded nodes: 708, score: 24
+max distance + detect fails + covered corners - Expanded nodes: 764, score: 24
+mean distance (even with detect fails) - long run
+*GREAT* - mean distance + covered corners + detect fails: Expanded nodes: *80*, score: 24
+mean distance + covered corners + detect fails: Expanded nodes: 449, score: 24
+mean distance + covered corners: Expanded nodes: 102, score: 24
+
+
+

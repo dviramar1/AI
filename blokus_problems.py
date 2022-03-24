@@ -1,3 +1,5 @@
+import math
+
 from board import Board
 from search import SearchProblem, ucs
 import util
@@ -91,6 +93,16 @@ class BlokusCornersProblem(SearchProblem):
         return sum(action.piece.get_num_tiles() for action in actions)
 
 
+def tiles_distance(p1, p2):
+    return max(abs(p2[0] - p1[0]), abs(p2[1] - p1[1]))
+
+
+def is_tile_corner(state, p):
+    neighbors = [state.get_position(p[0], p[1]), state.get_position(p[0], p[1] + 1), state.get_position(p[0] + 1, p[1]),
+                 state.get_position(p[0] + 1, p[1] + 1)]
+    return sum(map(lambda x: x == 0, neighbors))
+
+
 def blokus_corners_heuristic(state, problem):
     """
     Your heuristic for the BlokusCornersProblem goes here.
@@ -103,8 +115,23 @@ def blokus_corners_heuristic(state, problem):
     your heuristic is *not* consistent, and probably not admissible!  On the other hand,
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    points_w = problem.board.board_w - 2
+    points_h = problem.board.board_h - 2
+
+    corners = [(0, 0), (0, points_h), (points_w, 0), (points_w, points_h)]
+    min_corners_dists = []
+    for corner in corners:
+        min_corner_dist = math.inf
+        for x in range(points_w):
+            for y in range(points_h):
+                curr_point = (x, y)
+                if is_tile_corner(state, curr_point):
+                    corner_distance = tiles_distance(corner, curr_point)
+                    if corner_distance < min_corner_dist:
+                        min_corner_dist = corner_distance
+        min_corners_dists.append(min_corner_dist)
+    return max(min_corners_dists)
 
 
 class BlokusCoverProblem(SearchProblem):

@@ -1,4 +1,5 @@
 import math
+from statistics import mean
 
 from board import Board
 from search import SearchProblem, ucs
@@ -103,19 +104,7 @@ def is_tile_corner(state, p):
     return sum(map(lambda x: x == 0, neighbors))
 
 
-def blokus_corners_heuristic(state, problem):
-    """
-    Your heuristic for the BlokusCornersProblem goes here.
-
-    This heuristic must be consistent to ensure correctness.  First, try to come up
-    with an admissible heuristic; almost all admissible heuristics will be consistent
-    as well.
-
-    If using A* ever finds a solution that is worse uniform cost search finds,
-    your heuristic is *not* consistent, and probably not admissible!  On the other hand,
-    inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
-    """
-
+def max_distance_heuristics(state, problem):
     points_w = problem.board.board_w - 2
     points_h = problem.board.board_h - 2
 
@@ -131,7 +120,32 @@ def blokus_corners_heuristic(state, problem):
                     if corner_distance < min_corner_dist:
                         min_corner_dist = corner_distance
         min_corners_dists.append(min_corner_dist)
+    # print(min_corners_dists)
+    # print(max(min_corners_dists))
     return max(min_corners_dists)
+
+
+def covered_corners_heuristic(state, problem):
+    corners = [(0, 0), (0, problem.board.board_h - 1), (problem.board.board_w - 1, 0),
+               (problem.board.board_w - 1, problem.board.board_h - 1)]
+    covered_corners = sum(state.get_position(*corner) == 0 for corner in corners)
+    return 4 - covered_corners
+
+
+def blokus_corners_heuristic(state, problem):
+    """
+    Your heuristic for the BlokusCornersProblem goes here.
+
+    This heuristic must be consistent to ensure correctness.  First, try to come up
+    with an admissible heuristic; almost all admissible heuristics will be consistent
+    as well.
+
+    If using A* ever finds a solution that is worse uniform cost search finds,
+    your heuristic is *not* consistent, and probably not admissible!  On the other hand,
+    inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
+    """
+    alpha = 0.2
+    return alpha * max_distance_heuristics(state, problem) + (1-alpha) * covered_corners_heuristic(state, problem)
 
 
 class BlokusCoverProblem(SearchProblem):

@@ -32,7 +32,10 @@ c.c (0.1) + mean.d (0.9) + detect fails: long run
 c.c (0.9) + mean.d (0.1) + detect fails: Expanded nodes: 2114, score: 24
 
 --- after fix dist ---
-*GREAT* - c.c (0.3) + mean.d (0.7) + detect fails (better one): Expanded nodes: *89*, score: 24
+c.c (0.3) + mean.d (0.7) + detect fails (better one): Expanded nodes: 89, score: 24
+*GREAT* fix dists - c.c (0.3) + mean.d (0.7) + detect fails (better one): Expanded nodes: *35*, score: 24
+*GREAT* fix dists - c.c (0.2) + mean.d (0.8) + detect fails (better one): Expanded nodes: *25*, score: 24
+after fixes - c.c 0.3 m.d 0.7 - Expanded nodes: 42, score: 24
 
 
 

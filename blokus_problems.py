@@ -98,49 +98,92 @@ def tiles_distance(p1, p2):
     return max(abs(p2[0] - p1[0]), abs(p2[1] - p1[1]))
 
 
-def is_legal_position(position, problem):
+def is_in_board(position, problem):
     return 0 <= position[0] <= problem.board.board_w - 1 and 0 <= position[1] <= problem.board.board_h - 1
 
 
 def is_tile_player_corner(state, p):
     neighbors = [(p[0], p[1]), (p[0], p[1] + 1), (p[0] + 1, p[1]), (p[0] + 1, p[1] + 1)]
-    return sum(map(lambda pos: state.get_position(*pos) == 0, neighbors)) == 1
+    neighbors_num = sum(map(lambda pos: state.get_position(*pos) == 0, neighbors))
+    return neighbors_num == 1
 
 
-def get_corners_dists(state, problem):
+def get_player_corners(state, problem):
     points_w = problem.board.board_w - 1
     points_h = problem.board.board_h - 1
 
-    corners_close_points = [(0, 0), (0, points_h - 1), (points_w - 1, 0), (points_w - 1, points_h - 1)]
+    player_corners = []
+    for x in range(points_w - 1):
+        for y in range(points_h - 1):
+            curr_point = (x, y)
+            if is_tile_player_corner(state, curr_point):
+                player_corners.append(curr_point)
+    return player_corners
+
+
+def is_legal_next_pos(state, problem, pos):
+    straight_neighbors = [(pos[0] + 1, pos[1]), (pos[0] - 1, pos[1]), (pos[0], pos[1] + 1), (pos[0], pos[1] - 1)]
+    diagonal_neighbors = [(pos[0] + 1, pos[1] + 1), (pos[0] + 1, pos[1] - 1), (pos[0] - 1, pos[1] + 1),
+                          (pos[0] - 1, pos[1] - 1)]
+
+    straight_neighbors_num = sum(
+        map(lambda pos: is_in_board(pos, problem) and state.get_position(*pos) == 0, straight_neighbors))
+    diagonal_neighbors_num = sum(
+        map(lambda pos: is_in_board(pos, problem) and state.get_position(*pos) == 0, diagonal_neighbors))
+
+    is_legal_next_pos = straight_neighbors_num == 0 and diagonal_neighbors_num > 0
+    return is_legal_next_pos
+
+
+def get_legal_next_positions(state, problem):
+    w = problem.board.board_w
+    h = problem.board.board_h
+
+    legal_positions = [(x, y) for x in range(w) for y in range(h) if is_legal_next_pos(state, problem, (x, y))]
+    return legal_positions
+
+
+def get_corners_dists(state, problem):
+    w = problem.board.board_w
+    h = problem.board.board_h
+
+    board_corners = [(0, 0), (0, h - 1), (w - 1, 0), (w - 1, h - 1)]
+    legal_next_positions = get_legal_next_positions(state, problem)
+
+    if len(board_corners) == 0 or len(legal_next_positions) == 0:
+        return None
+
+    are_corners_covered = [state.get_position(*corner) == 0 for corner in board_corners]
+
     corners_dists = []
-    for corner_point in corners_close_points:
-        min_corner_dist = math.inf
-        for x in range(points_w - 1):
-            for y in range(points_h - 1):
-                curr_point = (x, y)
-                if is_tile_player_corner(state, curr_point):
-                    corner_distance = tiles_distance(corner_point, curr_point)
-                    if corner_distance < min_corner_dist:
-                        min_corner_dist = corner_distance
-        corners_dists.append(min_corner_dist)
-    corners_dists = [dist + 1 for dist in corners_dists]
+    for board_corner, is_covered in zip(board_corners, are_corners_covered):
+        if is_covered:
+            corner_dist = 0
+        else:
+            corner_dists = [tiles_distance(board_corner, next_pos) + 1 for next_pos in legal_next_positions]
+            corner_dist = min(corner_dists)
+        corners_dists.append(corner_dist)
     return corners_dists
 
 
 def max_distance_heuristic(state, problem):
     corners_dists = get_corners_dists(state, problem)
-    return max(corners_dists)
-
-
-def min_distance_heuristic(state, problem):
-    corners_dists = get_corners_dists(state, problem)
-    corners_dists = filter(lambda dist: dist != 0, corners_dists)
-    return min(corners_dists)
+    if corners_dists is not None:
+        return max(corners_dists)
+    else:
+        w = problem.board.board_w
+        h = problem.board.board_h
+        return max((h - 1) / 2, (w - 1) / 2)
 
 
 def mean_distance_heuristic(state, problem):
     corners_dists = get_corners_dists(state, problem)
-    return mean(corners_dists)
+    if corners_dists is not None:
+        return mean(corners_dists)
+    else:
+        w = problem.board.board_w
+        h = problem.board.board_h
+        return min((h - 1) / 2, (w - 1) / 2)
 
 
 def get_covered_corners(state, problem):
@@ -161,7 +204,7 @@ def is_near_corner_covered(state, problem):
     corners_neighbors = [
         [(corner[0] + 1, corner[1]), (corner[0] - 1, corner[1]), (corner[0], corner[1] + 1), (corner[0], corner[1] - 1)]
         for corner in corners]
-    corners_neighbors = [[pos for pos in cor_neigh if is_legal_position(pos, problem)] for cor_neigh in
+    corners_neighbors = [[pos for pos in cor_neigh if is_in_board(pos, problem)] for cor_neigh in
                          corners_neighbors]
 
     for corner, corner_neighbors in zip(corners, corners_neighbors):
@@ -202,8 +245,7 @@ def blokus_corners_heuristic(state, problem):
         if is_fail_state(state, problem):
             return BIG_NUMBER
 
-    alpha, beta = 0.3, 0.1
-    return alpha * covered_corners_heuristic(state, problem) + (1 - alpha) * mean_distance_heuristic(state, problem)
+    return 0.3 * covered_corners_heuristic(state, problem) + 0.7 * mean_distance_heuristic(state, problem)
 
 
 class BlokusCoverProblem(SearchProblem):

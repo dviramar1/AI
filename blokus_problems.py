@@ -123,7 +123,7 @@ def get_corners_dists(state, problem):
                     if corner_distance < min_corner_dist:
                         min_corner_dist = corner_distance
         corners_dists.append(min_corner_dist)
-    corner_dists = [dist + 1 for dist in dists]
+    corners_dists = [dist + 1 for dist in dists]
     return corners_dists
 
 

@@ -221,7 +221,7 @@ def blokus_corners_heuristic(state, problem):
         if is_fail_state(state, problem):
             return BIG_NUMBER
 
-    alpha, beta = 0.3, 0.1
+    alpha = 0.2
     return alpha * covered_corners_heuristic(state, problem) + (1 - alpha) * mean_distance_heuristic(state, problem)
 
 

@@ -1,0 +1,41 @@
+***   6 X 6 - small board:   ***
+
+acs = null - Expanded nodes: 2809, score: 19
+random(0, 10) - not admissible - Expanded nodes: 466, score: 20 (this is random so might change)
+*GREAT* - covered corners  - Expanded nodes: *14*, score: 19
+max distance - buggy? / not admissible -  Expanded nodes: 689, score: 20
+mean distance - buggy? -  Expanded nodes: 1288, score: 19
+covered corners * 0.8 + random * 0.2 - not admissible - Expanded nodes: 235, score: 19 / Expanded nodes: *11*, score: 19
+near corners  (detect fails) - Expanded nodes: 1360, score: 19
+near corners + covered corners - Expanded nodes: *14*, score: 19
+*GREAT* - c.c (0.3) + mean.d (0.7) + detect fails (better one): Expanded nodes: 15, score: 19
+
+***   8 X 8 - normal board:   ***
+
+--- before fix dist ---
+
+detect fails - long run
+covered corners  - Expanded nodes: 626, score: 24
+*GOOD* - detect fails (near corners) + covered corners - Expanded nodes: *449*, score: 24
+max distance - Expanded nodes: 1877, score: 24
+max distance + detect fails - Expanded nodes: 708, score: 24
+max distance + detect fails + covered corners - Expanded nodes: 764, score: 24
+mean distance (even with detect fails) - long run
+*GREAT* - mean distance + covered corners + detect fails - not admissible: Expanded nodes: *80*, score: 24
+mean distance + covered corners + detect fails: Expanded nodes: 449, score: 24
+mean distance + covered corners: Expanded nodes: 102, score: 24
+c.c (0.5) + mean.d (0.5) + detect fails: Expanded nodes: 457, score: 24
+c.c (0.4) + mean.d (0.6) + detect fails: Expanded nodes: 440, score: 24
+*GREAT* - c.c (0.3) + mean.d (0.7) + detect fails: Expanded nodes: *195*, score: 24
+c.c (0.2) + mean.d (0.8) + detect fails: Expanded nodes: 248, score: 24
+c.c (0.1) + mean.d (0.9) + detect fails: long run
+c.c (0.9) + mean.d (0.1) + detect fails: Expanded nodes: 2114, score: 24
+
+--- after fix dist ---
+*GREAT* - c.c (0.3) + mean.d (0.7) + detect fails (better one): Expanded nodes: *89*, score: 24
+
+
+
+
+
+

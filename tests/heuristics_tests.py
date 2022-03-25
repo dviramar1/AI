@@ -1,6 +1,6 @@
 import random
 
-from blokus_problems import BlokusCornersProblem, get_corners_dists, get_player_corners
+from blokus_problems import BlokusCornersProblem, get_corners_dists, get_player_corners, get_legal_next_positions
 from pieces import PieceList
 
 
@@ -8,7 +8,7 @@ def get_random_state(problem):
     start_state = problem.get_start_state()
 
     curr_state = start_state
-    for i in range(1):
+    for i in range(5):
         curr_state = random.choice(problem.get_successors(curr_state))[0]
 
     return curr_state
@@ -19,10 +19,10 @@ if __name__ == '__main__':
     problem = BlokusCornersProblem(8, 8, piece_list, (0, 0))
 
     state = get_random_state(problem)
-    player_corners = get_player_corners(state, problem)
+    player_nexts = get_legal_next_positions(state, problem)
     corners_dists = get_corners_dists(state, problem)
 
     print(state)
-    print(player_corners)
+    print(player_nexts)
     print(corners_dists)
     print("make sense?")

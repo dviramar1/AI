@@ -104,27 +104,35 @@ def is_legal_position(position, problem):
 
 def is_tile_player_corner(state, p):
     neighbors = [(p[0], p[1]), (p[0], p[1] + 1), (p[0] + 1, p[1]), (p[0] + 1, p[1] + 1)]
-    return sum(map(lambda pos: state.get_position(*pos) == 0, neighbors)) == 1
+    neighbors_num = sum(map(lambda pos: state.get_position(*pos) == 0, neighbors))
+    return neighbors_num == 1
+
+
+def get_player_corners(state, problem):
+    points_w = problem.board.board_w - 1
+    points_h = problem.board.board_h - 1
+
+    player_corners = []
+    for x in range(points_w - 1):
+        for y in range(points_h - 1):
+            curr_point = (x, y)
+            if is_tile_player_corner(state, curr_point):
+                player_corners.append(curr_point)
+    return player_corners
 
 
 def get_corners_dists(state, problem):
     points_w = problem.board.board_w - 1
     points_h = problem.board.board_h - 1
 
-    corners_close_points = [(0, 0), (0, points_h - 1), (points_w - 1, 0), (points_w - 1, points_h - 1)]
-    corners_dists = []
-    for corner_point in corners_close_points:
-        min_corner_dist = math.inf
-        for x in range(points_w - 1):
-            for y in range(points_h - 1):
-                curr_point = (x, y)
-                if is_tile_player_corner(state, curr_point):
-                    corner_distance = tiles_distance(corner_point, curr_point)
-                    if corner_distance < min_corner_dist:
-                        min_corner_dist = corner_distance
-        corners_dists.append(min_corner_dist)
-    corners_dists = [dist + 1 for dist in corners_dists]
-    return corners_dists
+    board_corners_points = [(0, 0), (0, points_h - 1), (points_w - 1, 0), (points_w - 1, points_h - 1)]
+    player_corners_points = get_player_corners(state, problem)
+    if len(board_corners_points) == 0 or len(player_corners_points) == 0:
+        return [min(points_h / 2, points_w / 2) for _ in range(len(board_corners_points))]
+    corners_dists = [[tiles_distance(board_corner, player_corner) for player_corner in player_corners_points]
+                     for board_corner in board_corners_points]
+    corners_min_dists = [min(dists) + 1 for dists in corners_dists]
+    return corners_min_dists
 
 
 def max_distance_heuristic(state, problem):

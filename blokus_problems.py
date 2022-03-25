@@ -108,18 +108,18 @@ def is_tile_player_corner(state, p):
 
 
 def get_corners_dists(state, problem):
-    points_w = problem.board.board_w - 2
-    points_h = problem.board.board_h - 2
+    points_w = problem.board.board_w - 1
+    points_h = problem.board.board_h - 1
 
-    corners = [(0, 0), (0, points_h), (points_w, 0), (points_w, points_h)]
+    corners_close_points = [(0, 0), (0, points_h - 1), (points_w - 1, 0), (points_w - 1, points_h - 1)]
     corners_dists = []
-    for corner in corners:
+    for corner_point in corners_close_points:
         min_corner_dist = math.inf
-        for x in range(points_w):
-            for y in range(points_h):
+        for x in range(points_w - 1):
+            for y in range(points_h - 1):
                 curr_point = (x, y)
                 if is_tile_player_corner(state, curr_point):
-                    corner_distance = tiles_distance(corner, curr_point)
+                    corner_distance = tiles_distance(corner_point, curr_point)
                     if corner_distance < min_corner_dist:
                         min_corner_dist = corner_distance
         corners_dists.append(min_corner_dist)
@@ -153,14 +153,6 @@ def get_covered_corners(state, problem):
 def covered_corners_heuristic(state, problem):
     covered_corners = get_covered_corners(state, problem)
     return 4 - covered_corners
-
-
-def null_heuristic(state, problem):
-    return 0
-
-
-def random_heuristic(state, problem):
-    return random.randint(0, 10)
 
 
 def is_near_corner_covered(state, problem):

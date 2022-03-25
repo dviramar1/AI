@@ -8,6 +8,7 @@ mean distance - buggy? -  Expanded nodes: 1288, score: 19
 covered corners * 0.8 + random * 0.2 - not admissible - Expanded nodes: 235, score: 19 / Expanded nodes: *11*, score: 19
 near corners  (detect fails) - Expanded nodes: 1360, score: 19
 near corners + covered corners - Expanded nodes: *14*, score: 19
+*GREAT* - c.c (0.3) + mean.d (0.7) + detect fails (better one): Expanded nodes: 15, score: 19
 
 ***   8 X 8 - normal board:   ***
 

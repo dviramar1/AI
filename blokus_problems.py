@@ -150,8 +150,8 @@ def get_corners_dists(state, problem):
     board_corners = [(0, 0), (0, h - 1), (w - 1, 0), (w - 1, h - 1)]
     legal_next_positions = get_legal_next_positions(state, problem)
 
-    if len(board_corners) == 0 or len(legal_next_positions) == 0:  # TODO: fix
-        return [min(h / 2, w / 2) for _ in range(len(board_corners))]
+    if len(board_corners) == 0 or len(legal_next_positions) == 0:
+        return None
 
     are_corners_covered = [state.get_position(*corner) == 0 for corner in board_corners]
 
@@ -168,23 +168,22 @@ def get_corners_dists(state, problem):
 
 def max_distance_heuristic(state, problem):
     corners_dists = get_corners_dists(state, problem)
-    return max(corners_dists)
-
-
-def min_distance_heuristic(state, problem):
-    corners_dists = get_corners_dists(state, problem)
-    corners_dists = filter(lambda dist: dist != 0, corners_dists)
-    return min(corners_dists)
+    if corners_dists is not None:
+        return max(corners_dists)
+    else:
+        w = problem.board.board_w
+        h = problem.board.board_h
+        return max((h - 1) / 2, (w - 1) / 2)
 
 
 def mean_distance_heuristic(state, problem):
     corners_dists = get_corners_dists(state, problem)
-    return mean(corners_dists)
-
-
-def sum_distance_na_heuristic(state, problem):  # TODO: warning: not admissible
-    corners_dists = get_corners_dists(state, problem)
-    return sum(corners_dists)
+    if corners_dists is not None:
+        return mean(corners_dists)
+    else:
+        w = problem.board.board_w
+        h = problem.board.board_h
+        return min((h - 1) / 2, (w - 1) / 2)
 
 
 def get_covered_corners(state, problem):

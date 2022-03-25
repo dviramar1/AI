@@ -104,7 +104,7 @@ def is_legal_position(position, problem):
 
 def is_tile_player_corner(state, p):
     neighbors = [(p[0], p[1]), (p[0], p[1] + 1), (p[0] + 1, p[1]), (p[0] + 1, p[1] + 1)]
-    return sum(map(lambda pos: state.get_position(*pos) == 0, neighbors))
+    return sum(map(lambda pos: state.get_position(*pos) == 0, neighbors)) == 1
 
 
 def get_corners_dists(state, problem):
@@ -178,19 +178,15 @@ def is_near_corner_covered(state, problem):
     return False
 
 
+def has_no_legal_moves(state : Board):
+    return state.get_legal_moves(0) == []
+
+
 def detect_fails_heuristic(state, problem):
-    covered_corners = get_covered_corners(state, problem)
-    if covered_corners == 4:
-        return 0
-    elif is_near_corner_covered(state, problem):
+    if has_no_legal_moves(state) or is_near_corner_covered(state, problem):
         return BIG_NUMBER
     else:
         return 0
-
-def no_valid_successors(state, problem):
-    if not problem.is_goal_state(state):
-        return problem.get_successors(state) == []
-    return False
 
 
 def blokus_corners_heuristic(state, problem):
@@ -205,15 +201,16 @@ def blokus_corners_heuristic(state, problem):
     your heuristic is *not* consistent, and probably not admissible!  On the other hand,
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
+
+    if problem.is_goal_state(state):
+        return 0
+
     detect_fails = True
-    valid_successors = False
 
     if detect_fails:
         if detect_fails_heuristic(state, problem) == BIG_NUMBER:
             return BIG_NUMBER
-    if valid_successors:
-        if no_valid_successors(state, problem):
-            return BIG_NUMBER
+
     alpha, beta = 0.3, 0.1
     return (alpha * covered_corners_heuristic(state, problem) + beta * min_distance_heuristic(state, problem) +
            (1 - alpha - beta) * mean_distance_heuristic(state, problem))

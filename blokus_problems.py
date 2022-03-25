@@ -125,14 +125,25 @@ def get_corners_dists(state, problem):
     points_w = problem.board.board_w - 1
     points_h = problem.board.board_h - 1
 
+    board_corners = [(0, 0), (0, problem.board.board_h - 1), (problem.board.board_w - 1, 0),
+               (problem.board.board_w - 1, problem.board.board_h - 1)]
     board_corners_points = [(0, 0), (0, points_h - 1), (points_w - 1, 0), (points_w - 1, points_h - 1)]
     player_corners_points = get_player_corners(state, problem)
+
     if len(board_corners_points) == 0 or len(player_corners_points) == 0:
         return [min(points_h / 2, points_w / 2) for _ in range(len(board_corners_points))]
-    corners_dists = [[tiles_distance(board_corner, player_corner) for player_corner in player_corners_points]
-                     for board_corner in board_corners_points]
-    corners_min_dists = [min(dists) + 1 for dists in corners_dists]
-    return corners_min_dists
+
+    are_corners_covered = [state.get_position(*corner) == 0 for corner in board_corners]
+
+    corners_dists = []
+    for board_corner, is_covered in zip(board_corners_points, are_corners_covered):
+        if is_covered:
+            corner_dist = 0
+        else:
+            corner_dists = [tiles_distance(board_corner, player_corner) for player_corner in player_corners_points]
+            corner_dist = min(corner_dists) + 1
+        corners_dists.append(corner_dist)
+    return corners_dists
 
 
 def max_distance_heuristic(state, problem):

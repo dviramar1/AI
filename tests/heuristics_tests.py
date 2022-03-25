@@ -20,9 +20,9 @@ if __name__ == '__main__':
 
     state = get_random_state(problem)
     player_corners = get_player_corners(state, problem)
-    # corners_dists = get_corners_dists(state, problem)
+    corners_dists = get_corners_dists(state, problem)
 
     print(state)
     print(player_corners)
-    # print(corners_dists)
+    print(corners_dists)
     print("make sense?")

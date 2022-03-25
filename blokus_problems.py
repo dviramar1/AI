@@ -1,7 +1,6 @@
 import math
 import random
 from statistics import mean
-from scipy.stats import gmean
 
 from board import Board
 from search import SearchProblem, ucs
@@ -105,7 +104,7 @@ def tiles_distance(p1, p2):
 def is_tile_corner(state, p):
     neighbors = [state.get_position(p[0], p[1]), state.get_position(p[0], p[1] + 1), state.get_position(p[0] + 1, p[1]),
                  state.get_position(p[0] + 1, p[1] + 1)]
-    return sum(map(lambda x: x == 0, neighbors))
+    return sum(map(lambda x: x == 0, neighbors)) == 1
 
 
 def get_corners_dists(state, problem):
@@ -124,6 +123,7 @@ def get_corners_dists(state, problem):
                     if corner_distance < min_corner_dist:
                         min_corner_dist = corner_distance
         corners_dists.append(min_corner_dist)
+    corner_dists = [dist + 1 for dist in dists]
     return corners_dists
 
 
@@ -140,6 +140,7 @@ def min_distance_heuristic(state, problem):
 def mean_distance_heuristic(state, problem):
     corners_dists = get_corners_dists(state, problem)
     return mean(corners_dists)
+
 
 def get_covered_corners(state, problem):
     corners = [(0, 0), (0, problem.board.board_h - 1), (problem.board.board_w - 1, 0),
@@ -192,7 +193,7 @@ def detect_fails_heuristic(state, problem):
         return 0
 
 
-def blokus_corners_heuristic(state, problem):
+def blokus_corners_heuristic_2(state, problem):
     """
     Your heuristic for the BlokusCornersProblem goes here.
 
@@ -212,108 +213,108 @@ def blokus_corners_heuristic(state, problem):
     return alpha * covered_corners_heuristic(state, problem) + (1 - alpha) * mean_distance_heuristic(state, problem)
 
 
-class BlokusCoverProblem(SearchProblem):
-    def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0), targets=[(0, 0)]):
-        self.board = Board(board_w, board_h, 1, piece_list, starting_point)
-        self.targets = targets.copy()
-        self.expanded = 0
+def blokus_corners_heuristic(state, problem):
+    return max_distance_heuristic(state, problem)
 
-    def get_start_state(self):
-        """
-        Returns the start state for the search problem
-        """
-        return self.board
+    class BlokusCoverProblem(SearchProblem):
+        def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0), targets=[(0, 0)]):
+            self.board = Board(board_w, board_h, 1, piece_list, starting_point)
+            self.targets = targets.copy()
+            self.expanded = 0
 
-    def is_goal_state(self, state):
-        for target in self.targets:
-            if state.get_position(*target) != 0:
-                return False
-        return True
+        def get_start_state(self):
+            """
+            Returns the start state for the search problem
+            """
+            return self.board
 
-    def get_successors(self, state):
-        """
-        state: Search state
+        def is_goal_state(self, state):
+            for target in self.targets:
+                if state.get_position(*target) != 0:
+                    return False
+            return True
 
-        For a given state, this should return a list of triples,
-        (successor, action, stepCost), where 'successor' is a
-        successor to the current state, 'action' is the action
-        required to get there, and 'stepCost' is the incremental
-        cost of expanding to that successor
-        """
-        # Note that for the search problem, there is only one player - #0
-        self.expanded = self.expanded + 1
-        return [(state.do_move(0, move), move, move.piece.get_num_tiles()) for move in state.get_legal_moves(0)]
+        def get_successors(self, state):
+            """
+            state: Search state
 
-    def get_cost_of_actions(self, actions):
-        """
-        actions: A list of actions to take
+            For a given state, this should return a list of triples,
+            (successor, action, stepCost), where 'successor' is a
+            successor to the current state, 'action' is the action
+            required to get there, and 'stepCost' is the incremental
+            cost of expanding to that successor
+            """
+            # Note that for the search problem, there is only one player - #0
+            self.expanded = self.expanded + 1
+            return [(state.do_move(0, move), move, move.piece.get_num_tiles()) for move in state.get_legal_moves(0)]
 
-        This method returns the total cost of a particular sequence of actions.  The sequence must
-        be composed of legal moves
-        """
-        return sum(action.piece.get_num_tiles() for action in actions)
+        def get_cost_of_actions(self, actions):
+            """
+            actions: A list of actions to take
 
+            This method returns the total cost of a particular sequence of actions.  The sequence must
+            be composed of legal moves
+            """
+            return sum(action.piece.get_num_tiles() for action in actions)
 
-def blokus_cover_heuristic(state, problem):
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
-
-class ClosestLocationSearch:
-    """
-    In this problem you have to cover all given positions on the board,
-    but the objective is speed, not optimality.
-    """
-
-    def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0), targets=(0, 0)):
-        self.expanded = 0
-        self.targets = targets.copy()
-        "*** YOUR CODE HERE ***"
-
-    def get_start_state(self):
-        """
-        Returns the start state for the search problem
-        """
-        return self.board
-
-    def solve(self):
-        """
-        This method should return a sequence of actions that covers all target locations on the board.
-        This time we trade optimality for speed.
-        Therefore, your agent should try and cover one target location at a time. Each time, aiming for the closest uncovered location.
-        You may define helpful functions as you wish.
-
-        Probably a good way to start, would be something like this --
-
-        current_state = self.board.__copy__()
-        backtrace = []
-
-        while ....
-
-            actions = set of actions that covers the closets uncovered target location
-            add actions to backtrace
-
-        return backtrace
-        """
+    def blokus_cover_heuristic(state, problem):
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
-
-class MiniContestSearch:
-    """
-    Implement your contest entry here
-    """
-
-    def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0), targets=(0, 0)):
-        self.targets = targets.copy()
-        "*** YOUR CODE HERE ***"
-
-    def get_start_state(self):
+    class ClosestLocationSearch:
         """
-        Returns the start state for the search problem
+        In this problem you have to cover all given positions on the board,
+        but the objective is speed, not optimality.
         """
-        return self.board
 
-    def solve(self):
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0), targets=(0, 0)):
+            self.expanded = 0
+            self.targets = targets.copy()
+            "*** YOUR CODE HERE ***"
+
+        def get_start_state(self):
+            """
+            Returns the start state for the search problem
+            """
+            return self.board
+
+        def solve(self):
+            """
+            This method should return a sequence of actions that covers all target locations on the board.
+            This time we trade optimality for speed.
+            Therefore, your agent should try and cover one target location at a time. Each time, aiming for the closest uncovered location.
+            You may define helpful functions as you wish.
+
+            Probably a good way to start, would be something like this --
+
+            current_state = self.board.__copy__()
+            backtrace = []
+
+            while ....
+
+                actions = set of actions that covers the closets uncovered target location
+                add actions to backtrace
+
+            return backtrace
+            """
+            "*** YOUR CODE HERE ***"
+            util.raiseNotDefined()
+
+    class MiniContestSearch:
+        """
+        Implement your contest entry here
+        """
+
+        def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0), targets=(0, 0)):
+            self.targets = targets.copy()
+            "*** YOUR CODE HERE ***"
+
+        def get_start_state(self):
+            """
+            Returns the start state for the search problem
+            """
+            return self.board
+
+        def solve(self):
+            "*** YOUR CODE HERE ***"
+            util.raiseNotDefined()

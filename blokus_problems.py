@@ -1,7 +1,6 @@
 import math
 import random
 from statistics import mean
-from scipy.stats import gmean
 
 from board import Board
 from search import SearchProblem, ucs
@@ -69,10 +68,7 @@ class BlokusCornersProblem(SearchProblem):
         return self.board
 
     def is_goal_state(self, state):
-        return (state.get_position(0, 0) == 0 and
-                state.get_position(0, self.board.board_h - 1) == 0 and
-                state.get_position(self.board.board_w - 1, self.board.board_h - 1) == 0 and
-                state.get_position(self.board.board_w - 1, 0) == 0)
+        return get_covered_corners(state, self) == 4
 
     def get_successors(self, state):
         """
@@ -102,10 +98,13 @@ def tiles_distance(p1, p2):
     return max(abs(p2[0] - p1[0]), abs(p2[1] - p1[1]))
 
 
-def is_tile_corner(state, p):
-    neighbors = [state.get_position(p[0], p[1]), state.get_position(p[0], p[1] + 1), state.get_position(p[0] + 1, p[1]),
-                 state.get_position(p[0] + 1, p[1] + 1)]
-    return sum(map(lambda x: x == 0, neighbors))
+def is_legal_position(position, problem):
+    return 0 <= position[0] <= problem.board.board_w - 1 and 0 <= position[1] <= problem.board.board_h - 1
+
+
+def is_tile_player_corner(state, p):
+    neighbors = [(p[0], p[1]), (p[0], p[1] + 1), (p[0] + 1, p[1]), (p[0] + 1, p[1] + 1)]
+    return sum(map(lambda pos: state.get_position(*pos) == 0, neighbors))
 
 
 def get_corners_dists(state, problem):
@@ -119,7 +118,7 @@ def get_corners_dists(state, problem):
         for x in range(points_w):
             for y in range(points_h):
                 curr_point = (x, y)
-                if is_tile_corner(state, curr_point):
+                if is_tile_player_corner(state, curr_point):
                     corner_distance = tiles_distance(corner, curr_point)
                     if corner_distance < min_corner_dist:
                         min_corner_dist = corner_distance
@@ -134,6 +133,7 @@ def max_distance_heuristic(state, problem):
 
 def min_distance_heuristic(state, problem):
     corners_dists = get_corners_dists(state, problem)
+    corners_dists = filter(lambda dist: dist != 0, corners_dists)
     return min(corners_dists)
 
 
@@ -159,10 +159,6 @@ def null_heuristic(state, problem):
 
 def random_heuristic(state, problem):
     return random.randint(0, 10)
-
-
-def is_legal_position(position, problem):
-    return 0 <= position[0] <= problem.board.board_w - 1 and 0 <= position[1] <= problem.board.board_h - 1
 
 
 def is_near_corner_covered(state, problem):
@@ -191,6 +187,11 @@ def detect_fails_heuristic(state, problem):
     else:
         return 0
 
+def no_valid_successors(state, problem):
+    if not problem.is_goal_state(state):
+        return problem.get_successors(state) == []
+    return False
+
 
 def blokus_corners_heuristic(state, problem):
     """
@@ -205,11 +206,17 @@ def blokus_corners_heuristic(state, problem):
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
     detect_fails = True
+    valid_successors = False
+
     if detect_fails:
         if detect_fails_heuristic(state, problem) == BIG_NUMBER:
             return BIG_NUMBER
-    alpha = 0.3
-    return alpha * covered_corners_heuristic(state, problem) + (1 - alpha) * mean_distance_heuristic(state, problem)
+    if valid_successors:
+        if no_valid_successors(state, problem):
+            return BIG_NUMBER
+    alpha, beta = 0.3, 0.1
+    return (alpha * covered_corners_heuristic(state, problem) + beta * min_distance_heuristic(state, problem) +
+           (1 - alpha - beta) * mean_distance_heuristic(state, problem))
 
 
 class BlokusCoverProblem(SearchProblem):

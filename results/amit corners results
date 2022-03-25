@@ -10,6 +10,9 @@ near corners  (detect fails) - Expanded nodes: 1360, score: 19
 near corners + covered corners - Expanded nodes: *14*, score: 19
 
 ***   8 X 8 - normal board:   ***
+
+--- before fix dist ---
+
 detect fails - long run
 covered corners  - Expanded nodes: 626, score: 24
 *GOOD* - detect fails (near corners) + covered corners - Expanded nodes: *449*, score: 24
@@ -26,6 +29,11 @@ c.c (0.4) + mean.d (0.6) + detect fails: Expanded nodes: 440, score: 24
 c.c (0.2) + mean.d (0.8) + detect fails: Expanded nodes: 248, score: 24
 c.c (0.1) + mean.d (0.9) + detect fails: long run
 c.c (0.9) + mean.d (0.1) + detect fails: Expanded nodes: 2114, score: 24
+
+--- after fix dist ---
+*GREAT* - c.c (0.3) + mean.d (0.7) + detect fails (better one): Expanded nodes: *89*, score: 24
+
+
 
 
 

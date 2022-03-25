@@ -100,10 +100,6 @@ def tiles_distance(p1, p2):
 
 def is_legal_position(position, problem):
     return 0 <= position[0] <= problem.board.board_w - 1 and 0 <= position[1] <= problem.board.board_h - 1
-def is_tile_corner(state, p):
-    neighbors = [state.get_position(p[0], p[1]), state.get_position(p[0], p[1] + 1), state.get_position(p[0] + 1, p[1]),
-                 state.get_position(p[0] + 1, p[1] + 1)]
-    return sum(map(lambda x: x == 0, neighbors)) == 1
 
 
 def is_tile_player_corner(state, p):
@@ -127,7 +123,7 @@ def get_corners_dists(state, problem):
                     if corner_distance < min_corner_dist:
                         min_corner_dist = corner_distance
         corners_dists.append(min_corner_dist)
-    corners_dists = [dist + 1 for dist in dists]
+    corners_dists = [dist + 1 for dist in corners_dists]
     return corners_dists
 
 
@@ -184,15 +180,12 @@ def is_near_corner_covered(state, problem):
     return False
 
 
-def has_no_legal_moves(state : Board):
+def has_no_legal_moves(state: Board):
     return state.get_legal_moves(0) == []
 
 
-def detect_fails_heuristic(state, problem):
-    if has_no_legal_moves(state) or is_near_corner_covered(state, problem):
-        return BIG_NUMBER
-    else:
-        return 0
+def is_fail_state(state, problem):
+    return has_no_legal_moves(state) or is_near_corner_covered(state, problem)
 
 
 def blokus_corners_heuristic(state, problem):
@@ -208,18 +201,17 @@ def blokus_corners_heuristic(state, problem):
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
 
+    detect_fails = True
+
     if problem.is_goal_state(state):
         return 0
 
-    detect_fails = True
-
     if detect_fails:
-        if detect_fails_heuristic(state, problem) == BIG_NUMBER:
+        if is_fail_state(state, problem):
             return BIG_NUMBER
 
     alpha, beta = 0.3, 0.1
-    return (alpha * covered_corners_heuristic(state, problem) + beta * min_distance_heuristic(state, problem) +
-           (1 - alpha - beta) * mean_distance_heuristic(state, problem))
+    return alpha * covered_corners_heuristic(state, problem) + (1 - alpha) * mean_distance_heuristic(state, problem)
 
 
 class BlokusCoverProblem(SearchProblem):

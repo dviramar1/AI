@@ -3,7 +3,7 @@ import random
 from statistics import mean
 
 from board import Board
-from search import SearchProblem, ucs
+from search import SearchProblem, ucs, astar
 import util
 
 BIG_NUMBER = 1000000
@@ -279,12 +279,12 @@ class BlokusCoverProblem(SearchProblem):
         return sum(action.piece.get_num_tiles() for action in actions)
 
 
-def get_targets_dists(state, problem: BlokusCoverProblem):
-    return get_dist_from_positions(state, problem, problem.targets)
+def get_targets_dists(state, problem: BlokusCoverProblem, targets):
+    return get_dist_from_positions(state, problem, targets)
 
 
-def mean_distance_cover_heuristic(state, problem: BlokusCornersProblem):
-    targets_dists = get_targets_dists(state, problem)
+def mean_distance_cover_heuristic(state, problem: BlokusCoverProblem):
+    targets_dists = get_targets_dists(state, problem, problem.targets)
     if targets_dists is not None:
         return mean(targets_dists)
     else:
@@ -302,9 +302,9 @@ class ClosestLocationSearch:
     """
 
     def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0), targets=(0, 0)):
-        self.expanded = 0
+        self.board = Board(board_w, board_h, 1, piece_list, starting_point)
         self.targets = targets.copy()
-        "*** YOUR CODE HERE ***"
+        self.expanded = 0
 
     def get_start_state(self):
         """
@@ -331,8 +331,24 @@ class ClosestLocationSearch:
 
         return backtrace
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        back_trace = []
+        for target in self.targets:
+            curr_problem = BlokusCoverProblem()
+            actions = astar(self, blokus_closest_heuristic)
+            back_trace.append(actions)
+        return back_trace
+
+
+def mean_distance_closest_heuristic(state, problem: ClosestLocationSearch):
+    targets_dists = get_targets_dists(state, problem, [problem.curr_target])
+    if targets_dists is not None:
+        return mean(targets_dists)
+    else:
+        return 0
+
+
+def blokus_closest_heuristic(state, problem):
+    return mean_distance_closest_heuristic(state, problem)
 
 
 class MiniContestSearch:

@@ -102,25 +102,6 @@ def is_in_board(position, problem):
     return 0 <= position[0] <= problem.board.board_w - 1 and 0 <= position[1] <= problem.board.board_h - 1
 
 
-def is_tile_player_corner(state, p):
-    neighbors = [(p[0], p[1]), (p[0], p[1] + 1), (p[0] + 1, p[1]), (p[0] + 1, p[1] + 1)]
-    neighbors_num = sum(map(lambda pos: state.get_position(*pos) == 0, neighbors))
-    return neighbors_num == 1
-
-
-def get_player_corners(state, problem):
-    points_w = problem.board.board_w - 1
-    points_h = problem.board.board_h - 1
-
-    player_corners = []
-    for x in range(points_w - 1):
-        for y in range(points_h - 1):
-            curr_point = (x, y)
-            if is_tile_player_corner(state, curr_point):
-                player_corners.append(curr_point)
-    return player_corners
-
-
 def is_legal_next_pos(state, problem, pos):
     straight_neighbors = [(pos[0] + 1, pos[1]), (pos[0] - 1, pos[1]), (pos[0], pos[1] + 1), (pos[0], pos[1] - 1)]
     diagonal_neighbors = [(pos[0] + 1, pos[1] + 1), (pos[0] + 1, pos[1] - 1), (pos[0] - 1, pos[1] + 1),

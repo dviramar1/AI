@@ -1,6 +1,6 @@
 import random
 
-from blokus_problems import BlokusCornersProblem, get_corners_dists, get_player_corners, get_legal_next_positions
+from blokus_problems import BlokusCornersProblem, get_corners_dists, get_legal_next_positions
 from pieces import PieceList
 
 

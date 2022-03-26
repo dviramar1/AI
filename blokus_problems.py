@@ -295,6 +295,14 @@ def blokus_cover_heuristic(state, problem):
     return mean_distance_cover_heuristic(state, problem)
 
 
+class MiniBlokusCoverProblem(BlokusCoverProblem):
+    def __init__(self, prev_actions, board_w, board_h, piece_list, starting_point, targets):
+        super().__init__(board_w, board_h, piece_list, starting_point, targets)
+        for action in prev_actions:
+            self.board.add_move(0, action)
+        print(self.board)
+
+
 class ClosestLocationSearch:
     """
     In this problem you have to cover all given positions on the board,
@@ -305,6 +313,7 @@ class ClosestLocationSearch:
         self.board = Board(board_w, board_h, 1, piece_list, starting_point)
         self.targets = targets.copy()
         self.expanded = 0
+        self.starting_point = starting_point
 
     def get_start_state(self):
         """
@@ -333,9 +342,12 @@ class ClosestLocationSearch:
         """
         back_trace = []
         for target in self.targets:
-            curr_problem = BlokusCoverProblem()
-            actions = astar(self, blokus_closest_heuristic)
-            back_trace.append(actions)
+            mini_problem = MiniBlokusCoverProblem(back_trace, self.board.board_w, self.board.board_h,
+                                                  self.board.piece_list, starting_point=self.starting_point, targets=[target])
+            actions_to_add = astar(mini_problem, blokus_cover_heuristic)
+            self.expanded += mini_problem.expanded
+            back_trace += actions_to_add
+            print(len(back_trace))
         return back_trace
 
 

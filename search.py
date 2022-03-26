@@ -97,9 +97,10 @@ def _generic_search(problem: SearchProblem, fringe, use_cost=False, heuristic=No
     while not fringe.isEmpty():
         curr_state, curr_actions = fringe.pop()
 
-        print_state(curr_state)
+        # print_state(curr_state)
 
         if problem.is_goal_state(curr_state):
+            print(curr_state)
             return curr_actions
 
         elif curr_state not in closed:

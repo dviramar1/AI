@@ -293,6 +293,8 @@ def mean_distance_cover_heuristic(state, problem: BlokusCoverProblem):
 
 
 def blokus_cover_heuristic(state, problem):
+    # TODO: add detect fails
+    # TODO: improve with other heuristic
     return mean_distance_cover_heuristic(state, problem)
 
 
@@ -323,6 +325,7 @@ class ClosestLocationSearch:
 
     def solve(self):
         # TODO: handle case where one target solution ruins to the other (maybe by not allowed positions)
+        # TODO: go to closest point
         """
         This method should return a sequence of actions that covers all target locations on the board.
         This time we trade optimality for speed.

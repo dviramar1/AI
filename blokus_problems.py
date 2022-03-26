@@ -245,6 +245,7 @@ class BlokusCoverProblem(SearchProblem):
     def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0), targets=[(0, 0)]):
         self.board = Board(board_w, board_h, 1, piece_list, starting_point)
         self.targets = targets.copy()
+        self.standardized_targets = [target[::-1] for target in targets]
         self.expanded = 0
 
     def get_start_state(self):
@@ -254,7 +255,7 @@ class BlokusCoverProblem(SearchProblem):
         return self.board
 
     def is_goal_state(self, state):
-        for target in self.targets:
+        for target in self.standardized_targets:
             if state.get_position(*target) != 0:
                 return False
         return True
@@ -288,7 +289,7 @@ def get_targets_dists(state, problem: BlokusCoverProblem, targets):
 
 
 def mean_distance_cover_heuristic(state, problem: BlokusCoverProblem):
-    targets_dists = get_targets_dists(state, problem, problem.targets)
+    targets_dists = get_targets_dists(state, problem, problem.standardized_targets)
     if targets_dists is not None:
         return mean(targets_dists)
     else:
@@ -351,20 +352,7 @@ class ClosestLocationSearch:
             actions_to_add = astar(mini_problem, blokus_cover_heuristic)
             self.expanded += mini_problem.expanded
             back_trace += actions_to_add
-            print(len(back_trace))
         return back_trace
-
-
-def mean_distance_closest_heuristic(state, problem: ClosestLocationSearch):
-    targets_dists = get_targets_dists(state, problem, [problem.curr_target])
-    if targets_dists is not None:
-        return mean(targets_dists)
-    else:
-        return 0
-
-
-def blokus_closest_heuristic(state, problem):
-    return mean_distance_closest_heuristic(state, problem)
 
 
 class MiniContestSearch:

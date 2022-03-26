@@ -322,6 +322,7 @@ class ClosestLocationSearch:
         return self.board
 
     def solve(self):
+        # TODO: handle case where one target solution ruins to the other (maybe by not allowed positions)
         """
         This method should return a sequence of actions that covers all target locations on the board.
         This time we trade optimality for speed.

@@ -123,6 +123,7 @@ def play_a_star_search(problem, heuristic):
     for action in back_trace:
         board.add_move(0, action)
         display.draw_board(board, dots=dots)
+    print(board)
     print("Expanded nodes: %d, score: %d" % (problem.expanded, board.score(0)))
 
 

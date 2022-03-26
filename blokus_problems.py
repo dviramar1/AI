@@ -11,10 +11,6 @@ BIG_NUMBER = 1000000
 
 # general methods
 
-def get_position_reversed(state, pos):
-    state.get_position(pos[1], pos[0])
-
-
 def tiles_distance(p1, p2):
     return max(abs(p2[0] - p1[0]), abs(p2[1] - p1[1]))
 
@@ -305,7 +301,6 @@ class MiniBlokusCoverProblem(BlokusCoverProblem):
         super().__init__(board_w, board_h, piece_list, starting_point, targets)
         for action in prev_actions:
             self.board.add_move(0, action)
-        print(self.board)
 
 
 class ClosestLocationSearch:
@@ -348,9 +343,11 @@ class ClosestLocationSearch:
         back_trace = []
         for target in self.targets:
             mini_problem = MiniBlokusCoverProblem(back_trace, self.board.board_w, self.board.board_h,
-                                                  self.board.piece_list, starting_point=self.starting_point, targets=[target])
+                                                  self.board.piece_list, starting_point=self.starting_point,
+                                                  targets=[target])
             actions_to_add = astar(mini_problem, blokus_cover_heuristic)
             self.expanded += mini_problem.expanded
+            print(self.expanded)
             back_trace += actions_to_add
         return back_trace
 

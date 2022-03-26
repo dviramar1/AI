@@ -11,6 +11,10 @@ BIG_NUMBER = 1000000
 
 # general methods
 
+def get_position_reversed(state, pos):
+    state.get_position(pos[1], pos[0])
+
+
 def tiles_distance(p1, p2):
     return max(abs(p2[0] - p1[0]), abs(p2[1] - p1[1]))
 

@@ -186,21 +186,23 @@ def covered_corners_heuristic(state, problem: BlokusCornersProblem):
     covered_corners = get_covered_corners(state, problem)
     return 4 - covered_corners
 
+def is_near_point_covered(state: Board, problem: SearchProblem, point):
+    point_neighbors = [(point[0] + 1, point[1]), (point[0] - 1, point[1]), (point[0], point[1] + 1), (point[0], point[1] - 1)]
+    point_neighbors = filter(lambda pos: is_in_board(pos, problem), point_neighbors)
+
+    if state.get_position(*point) != 0:
+        for neighbor in point_neighbors:
+                if state.get_position(*neighbor) == 0:
+                    return True
+    return False
+
 
 def is_near_corner_covered(state, problem: BlokusCornersProblem):
     corners = [(0, 0), (0, problem.board.board_h - 1), (problem.board.board_w - 1, 0),
                (problem.board.board_w - 1, problem.board.board_h - 1)]
-    corners_neighbors = [
-        [(corner[0] + 1, corner[1]), (corner[0] - 1, corner[1]), (corner[0], corner[1] + 1), (corner[0], corner[1] - 1)]
-        for corner in corners]
-    corners_neighbors = [[pos for pos in cor_neigh if is_in_board(pos, problem)] for cor_neigh in
-                         corners_neighbors]
-
-    for corner, corner_neighbors in zip(corners, corners_neighbors):
-        if state.get_position(*corner) != 0:
-            for neighbor in corner_neighbors:
-                if state.get_position(*neighbor) == 0:
-                    return True
+    for corner in corners:
+        if is_near_point_covered(state, problem, corner):
+            return True
     return False
 
 
@@ -208,7 +210,7 @@ def has_no_legal_moves(state: Board):
     return state.get_legal_moves(0) == []
 
 
-def is_fail_state(state, problem: BlokusCornersProblem):
+def is_corner_fail_state(state, problem: BlokusCornersProblem):
     return has_no_legal_moves(state) or is_near_corner_covered(state, problem)
 
 
@@ -231,7 +233,7 @@ def blokus_corners_heuristic(state, problem: BlokusCornersProblem):
         return 0
 
     if detect_fails:
-        if is_fail_state(state, problem):
+        if is_corner_fail_state(state, problem):
             return BIG_NUMBER
 
     return 0.3 * covered_corners_heuristic(state, problem) + 0.7 * mean_distance_corners_heuristic(state, problem)
@@ -292,17 +294,57 @@ def mean_distance_cover_heuristic(state, problem: BlokusCoverProblem):
         return 0
 
 
+def is_near_target_covered(state, problem: BlokusCoverProblem):
+    for target in problem.standardized_targets:
+        if is_near_point_covered(state, problem, target):
+            return True
+    return False
+
+def is_cover_fail_state(state, problem: BlokusCoverProblem):
+    return has_no_legal_moves(state) or is_near_target_covered(state, problem)
+
+
 def blokus_cover_heuristic(state, problem):
-    # TODO: add detect fails
     # TODO: improve with other heuristic
+    detect_fails = True
+    if detect_fails:
+        if is_cover_fail_state(state, problem):
+            return BIG_NUMBER
+
     return mean_distance_cover_heuristic(state, problem)
 
 
 class MiniBlokusCoverProblem(BlokusCoverProblem):
-    def __init__(self, prev_actions, board_w, board_h, piece_list, starting_point, targets):
+    def __init__(self, prev_actions, board_w, board_h, piece_list, starting_point, targets, blacklist):
         super().__init__(board_w, board_h, piece_list, starting_point, targets)
         for action in prev_actions:
             self.board.add_move(0, action)
+        self.blacklist = blacklist
+        self.standardized_blacklist = [target[::-1] for target in blacklist]
+
+
+def is_near_target_blacklist_covered(state: Board, problem: MiniBlokusCoverProblem):
+    for target in problem.standardized_targets:
+        if is_near_point_covered(state, problem, target):
+            return True
+
+    for target in problem.standardized_blacklist:
+        if is_near_point_covered(state, problem, target):
+            return True
+
+    return False
+
+def is_closest_fail_state(state, problem: MiniBlokusCoverProblem):
+    return has_no_legal_moves(state) or is_near_target_blacklist_covered(state, problem)
+
+
+def closest_location_heuristic(state: Board, problem: MiniBlokusCoverProblem):
+    detect_fails = True
+    if detect_fails:
+        if is_closest_fail_state(state, problem):
+            return BIG_NUMBER
+
+    return mean_distance_cover_heuristic(state, problem)
 
 
 class ClosestLocationSearch:
@@ -344,12 +386,13 @@ class ClosestLocationSearch:
 
         return backtrace
         """
+
         back_trace = []
         for target in self.targets:
             mini_problem = MiniBlokusCoverProblem(back_trace, self.board.board_w, self.board.board_h,
                                                   self.board.piece_list, starting_point=self.starting_point,
-                                                  targets=[target])
-            actions_to_add = astar(mini_problem, blokus_cover_heuristic)
+                                                  targets=[target], blacklist=filter(lambda x: x != target, self.targets))
+            actions_to_add = astar(mini_problem, closest_location_heuristic)
             self.expanded += mini_problem.expanded
             print(self.expanded)
             back_trace += actions_to_add

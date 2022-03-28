@@ -366,15 +366,18 @@ class ClosestLocationSearch:
         """
         return self.board
 
-    def closest_target(self, targets):
+    def closest_target(self, targets, back_trace):
         """
         Finds the closest target in the given target list
         """
 
-        dists = get_dist_from_positions(self.board, targets)
-        if dists is not None:
-            return min(zip(targets, dists), lambda x: x[1])[0]
-        return targets[0]
+        board = self.board.__copy__()
+        for action in back_trace:
+            board.add_move(0, action)
+        dists = get_dist_from_positions(board, targets)
+        if dists is None:
+            dists = [tiles_distance(self.starting_point[::-1], target) for target in targets]
+        return min(zip(targets, dists), key=lambda x: x[1])[0]
 
 
     def solve(self):
@@ -402,7 +405,7 @@ class ClosestLocationSearch:
         back_trace = []
         targets = deepcopy(self.standardized_targets)
         while targets != []:
-            target = self.closest_target(targets)
+            target = self.closest_target(targets, back_trace)
             targets = list(filter(lambda x: x != target, targets))
         # for target in self.targets:
             mini_problem = MiniBlokusCoverProblem(back_trace, self.board.board_w, self.board.board_h,

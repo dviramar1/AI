@@ -16,37 +16,37 @@ def tiles_distance(p1, p2):
     return max(abs(p2[0] - p1[0]), abs(p2[1] - p1[1]))
 
 
-def is_in_board(position, problem):
-    return 0 <= position[0] <= problem.board.board_w - 1 and 0 <= position[1] <= problem.board.board_h - 1
+def is_in_board(position, state: Board):
+    return 0 <= position[0] <= state.board_w - 1 and 0 <= position[1] <= state.board_h - 1
 
 
-def is_legal_next_pos(state, problem, pos):
+def is_legal_next_pos(state: Board, pos):
     straight_neighbors = [(pos[0] + 1, pos[1]), (pos[0] - 1, pos[1]), (pos[0], pos[1] + 1), (pos[0], pos[1] - 1)]
     diagonal_neighbors = [(pos[0] + 1, pos[1] + 1), (pos[0] + 1, pos[1] - 1), (pos[0] - 1, pos[1] + 1),
                           (pos[0] - 1, pos[1] - 1)]
 
     straight_neighbors_num = sum(
-        map(lambda pos: is_in_board(pos, problem) and state.get_position(*pos) == 0, straight_neighbors))
+        map(lambda pos: is_in_board(pos, state) and state.get_position(*pos) == 0, straight_neighbors))
     diagonal_neighbors_num = sum(
-        map(lambda pos: is_in_board(pos, problem) and state.get_position(*pos) == 0, diagonal_neighbors))
+        map(lambda pos: is_in_board(pos, state) and state.get_position(*pos) == 0, diagonal_neighbors))
 
     is_legal_next_pos = straight_neighbors_num == 0 and diagonal_neighbors_num > 0
     return is_legal_next_pos
 
 
-def get_legal_next_positions(state, problem):
-    w = problem.board.board_w
-    h = problem.board.board_h
+def get_legal_next_positions(state: Board):
+    w = state.board_w
+    h = state.board_h
 
-    legal_positions = [(x, y) for x in range(w) for y in range(h) if is_legal_next_pos(state, problem, (x, y))]
+    legal_positions = [(x, y) for x in range(w) for y in range(h) if is_legal_next_pos(state, (x, y))]
     return legal_positions
 
 
-def get_dist_from_positions(state, problem, positions):
-    w = problem.board.board_w
-    h = problem.board.board_h
+def get_dist_from_positions(state: Board, positions):
+    w = state.board_w
+    h = state.board_h
 
-    legal_next_positions = get_legal_next_positions(state, problem)
+    legal_next_positions = get_legal_next_positions(state)
 
     if len(positions) == 0 or len(legal_next_positions) == 0:
         return None
@@ -157,7 +157,7 @@ def get_corners_dists(state, problem):
     w = problem.board.board_w
     h = problem.board.board_h
     corners = [(0, 0), (0, h - 1), (w - 1, 0), (w - 1, h - 1)]
-    return get_dist_from_positions(state, problem, corners)
+    return get_dist_from_positions(state, corners)
 
 
 def max_distance_heuristic(state, problem: BlokusCornersProblem):
@@ -193,7 +193,7 @@ def covered_corners_heuristic(state, problem: BlokusCornersProblem):
 
 def is_near_point_covered(state: Board, problem: SearchProblem, point):
     point_neighbors = [(point[0] + 1, point[1]), (point[0] - 1, point[1]), (point[0], point[1] + 1), (point[0], point[1] - 1)]
-    point_neighbors = filter(lambda pos: is_in_board(pos, problem), point_neighbors)
+    point_neighbors = filter(lambda pos: is_in_board(pos, state), point_neighbors)
 
     if state.get_position(*point) != 0:
         for neighbor in point_neighbors:
@@ -284,7 +284,7 @@ class BlokusCoverProblem(SearchProblem):
 
 
 def get_targets_dists(state, problem: BlokusCoverProblem, targets):
-    return get_dist_from_positions(state, problem, targets)
+    return get_dist_from_positions(state, targets)
 
 
 def mean_distance_cover_heuristic(state, problem: BlokusCoverProblem):
@@ -321,7 +321,6 @@ class MiniBlokusCoverProblem(BlokusCoverProblem):
         for action in prev_actions:
             self.board.add_move(0, action)
         self.blacklist = blacklist
-        self.standardized_blacklist = [target[::-1] for target in blacklist]
 
 
 def is_near_target_blacklist_covered(state: Board, problem: MiniBlokusCoverProblem):
@@ -329,7 +328,7 @@ def is_near_target_blacklist_covered(state: Board, problem: MiniBlokusCoverProbl
         if is_near_point_covered(state, problem, target):
             return True
 
-    for target in problem.standardized_blacklist:
+    for target in problem.blacklist:
         if is_near_point_covered(state, problem, target):
             return True
 
@@ -357,6 +356,7 @@ class ClosestLocationSearch:
     def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0), targets=(0, 0)):
         self.board = Board(board_w, board_h, 1, piece_list, starting_point)
         self.targets = targets.copy()
+        self.standardized_targets = [target[::-1] for target in targets]
         self.expanded = 0
         self.starting_point = starting_point
 
@@ -371,9 +371,9 @@ class ClosestLocationSearch:
         Finds the closest target in the given target list
         """
 
-        dists = get_dist_from_positions(self.board, self, targets)
+        dists = get_dist_from_positions(self.board, targets)
         if dists is not None:
-            target = min(zip(targets, dists), lambda x: x[1])[0]
+            return min(zip(targets, dists), lambda x: x[1])[0]
         return targets[0]
 
 
@@ -400,14 +400,14 @@ class ClosestLocationSearch:
         """
 
         back_trace = []
-        targets = deepcopy(self.targets)
-        # while targets != []:
-        #    target = self.closest_target(targets)
-        #    targets = filter(lambda x: x != target, targets)
-        for target in self.targets:
+        targets = deepcopy(self.standardized_targets)
+        while targets != []:
+            target = self.closest_target(targets)
+            targets = list(filter(lambda x: x != target, targets))
+        # for target in self.targets:
             mini_problem = MiniBlokusCoverProblem(back_trace, self.board.board_w, self.board.board_h,
                                                   self.board.piece_list, starting_point=self.starting_point,
-                                                  targets=[target], blacklist=targets)
+                                                  targets=[target[::-1]], blacklist=filter(lambda x: x != target, self.standardized_targets))
             actions_to_add = astar(mini_problem, closest_location_heuristic)
             self.expanded += mini_problem.expanded
             print(self.expanded)

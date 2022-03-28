@@ -1,1 +1,8 @@
 ucs - Expanded nodes: 1452, score: 15
+
+
+5 X 5 board
+mean - 1452
+mean + detect fails - 199
+covered + detect fails - 199
+null + detect fails - 199

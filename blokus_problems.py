@@ -229,15 +229,14 @@ def blokus_corners_heuristic(state, problem: BlokusCornersProblem):
     your heuristic is *not* consistent, and probably not admissible!  On the other hand,
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
+    detect_fails = True
 
-    # detect_fails = True
-    #
-    # if problem.is_goal_state(state):
-    #     return 0
-    #
-    # if detect_fails:
-    #     if is_corner_fail_state(state, problem):
-    #         return BIG_NUMBER
+    if problem.is_goal_state(state):
+        return 0
+
+    if detect_fails:
+        if is_corner_fail_state(state, problem):
+            return BIG_NUMBER
 
     return mean_distance_corners_heuristic(state, problem)
 

@@ -105,7 +105,7 @@ def _generic_search(problem: SearchProblem, fringe, use_cost=False, heuristic=No
         elif curr_state not in closed:
             for (state, action, cost) in problem.get_successors(curr_state):
                 if use_cost:
-                    priority = cost
+                    priority = problem.get_cost_of_actions(curr_actions) + cost
                     if heuristic:
                         priority += heuristic(state, problem)
                     fringe.push(SearchItem(state, curr_actions + [action]), priority)

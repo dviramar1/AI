@@ -1,7 +1,8 @@
-ucs - Expanded nodes: 1452, score: 15
-
+null heursitic - too much time
+mean + detect fails: Expanded nodes: 4104, score: 17
 
 5 X 5 board
+null heursitic - 1452
 mean - 1452
 mean + detect fails - 199
 covered + detect fails - 199

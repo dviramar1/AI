@@ -1,3 +1,4 @@
+from copy import deepcopy
 import math
 import random
 from statistics import mean
@@ -61,6 +62,10 @@ def get_dist_from_positions(state, problem, positions):
             corner_dist = min(corner_dists)
         corners_dists.append(corner_dist)
     return corners_dists
+
+
+def has_no_legal_moves(state: Board):
+    return state.get_legal_moves(0) == []
 
 
 class BlokusFillProblem(SearchProblem):
@@ -204,10 +209,6 @@ def is_near_corner_covered(state, problem: BlokusCornersProblem):
         if is_near_point_covered(state, problem, corner):
             return True
     return False
-
-
-def has_no_legal_moves(state: Board):
-    return state.get_legal_moves(0) == []
 
 
 def is_corner_fail_state(state, problem: BlokusCornersProblem):
@@ -365,6 +366,17 @@ class ClosestLocationSearch:
         """
         return self.board
 
+    def closest_target(self, targets):
+        """
+        Finds the closest target in the given target list
+        """
+
+        dists = get_dist_from_positions(self.board, self, targets)
+        if dists is not None:
+            target = min(zip(targets, dists), lambda x: x[1])[0]
+        return targets[0]
+
+
     def solve(self):
         # TODO: handle case where one target solution ruins to the other (maybe by not allowed positions)
         # TODO: go to closest point
@@ -388,10 +400,14 @@ class ClosestLocationSearch:
         """
 
         back_trace = []
+        targets = deepcopy(self.targets)
+        # while targets != []:
+        #    target = self.closest_target(targets)
+        #    targets = filter(lambda x: x != target, targets)
         for target in self.targets:
             mini_problem = MiniBlokusCoverProblem(back_trace, self.board.board_w, self.board.board_h,
                                                   self.board.piece_list, starting_point=self.starting_point,
-                                                  targets=[target], blacklist=filter(lambda x: x != target, self.targets))
+                                                  targets=[target], blacklist=targets)
             actions_to_add = astar(mini_problem, closest_location_heuristic)
             self.expanded += mini_problem.expanded
             print(self.expanded)

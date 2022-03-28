@@ -160,7 +160,7 @@ def get_corners_dists(state, problem):
     return get_dist_from_positions(state, corners)
 
 
-def max_distance_heuristic(state, problem: BlokusCornersProblem):
+def max_distance_corners_heuristic(state, problem: BlokusCornersProblem):
     corners_dists = get_corners_dists(state, problem)
     if corners_dists is not None:
         return max(corners_dists)
@@ -191,14 +191,16 @@ def covered_corners_heuristic(state, problem: BlokusCornersProblem):
     covered_corners = get_covered_corners(state, problem)
     return 4 - covered_corners
 
+
 def is_near_point_covered(state: Board, problem: SearchProblem, point):
-    point_neighbors = [(point[0] + 1, point[1]), (point[0] - 1, point[1]), (point[0], point[1] + 1), (point[0], point[1] - 1)]
+    point_neighbors = [(point[0] + 1, point[1]), (point[0] - 1, point[1]), (point[0], point[1] + 1),
+                       (point[0], point[1] - 1)]
     point_neighbors = filter(lambda pos: is_in_board(pos, state), point_neighbors)
 
     if state.get_position(*point) != 0:
         for neighbor in point_neighbors:
-                if state.get_position(*neighbor) == 0:
-                    return True
+            if state.get_position(*neighbor) == 0:
+                return True
     return False
 
 
@@ -228,16 +230,16 @@ def blokus_corners_heuristic(state, problem: BlokusCornersProblem):
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
 
-    detect_fails = True
+    # detect_fails = True
+    #
+    # if problem.is_goal_state(state):
+    #     return 0
+    #
+    # if detect_fails:
+    #     if is_corner_fail_state(state, problem):
+    #         return BIG_NUMBER
 
-    if problem.is_goal_state(state):
-        return 0
-
-    if detect_fails:
-        if is_corner_fail_state(state, problem):
-            return BIG_NUMBER
-
-    return 0.3 * covered_corners_heuristic(state, problem) + 0.7 * mean_distance_corners_heuristic(state, problem)
+    return mean_distance_corners_heuristic(state, problem)
 
 
 class BlokusCoverProblem(SearchProblem):
@@ -301,6 +303,7 @@ def is_near_target_covered(state, problem: BlokusCoverProblem):
             return True
     return False
 
+
 def is_cover_fail_state(state, problem: BlokusCoverProblem):
     return has_no_legal_moves(state) or is_near_target_covered(state, problem)
 
@@ -333,6 +336,7 @@ def is_near_target_blacklist_covered(state: Board, problem: MiniBlokusCoverProbl
             return True
 
     return False
+
 
 def is_closest_fail_state(state, problem: MiniBlokusCoverProblem):
     return has_no_legal_moves(state) or is_near_target_blacklist_covered(state, problem)
@@ -379,7 +383,6 @@ class ClosestLocationSearch:
             dists = [tiles_distance(self.starting_point[::-1], target) for target in targets]
         return min(zip(targets, dists), key=lambda x: x[1])[0]
 
-
     def solve(self):
         # TODO: handle case where one target solution ruins to the other (maybe by not allowed positions)
         # TODO: go to closest point
@@ -407,10 +410,11 @@ class ClosestLocationSearch:
         while targets != []:
             target = self.closest_target(targets, back_trace)
             targets = list(filter(lambda x: x != target, targets))
-        # for target in self.targets:
+            # for target in self.targets:
             mini_problem = MiniBlokusCoverProblem(back_trace, self.board.board_w, self.board.board_h,
                                                   self.board.piece_list, starting_point=self.starting_point,
-                                                  targets=[target[::-1]], blacklist=filter(lambda x: x != target, self.standardized_targets))
+                                                  targets=[target[::-1]],
+                                                  blacklist=filter(lambda x: x != target, self.standardized_targets))
             actions_to_add = astar(mini_problem, closest_location_heuristic)
             self.expanded += mini_problem.expanded
             print(self.expanded)

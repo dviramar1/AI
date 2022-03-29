@@ -40,10 +40,10 @@ def get_dist_from_positions(state: Board, positions):
     if len(positions) == 0 or len(legal_next_positions) == 0:
         return None
 
-    are_corners_covered = [state.get_position(*corner) == 0 for corner in positions]
+    are_positions_covered = [state.get_position(*pos) == 0 for pos in positions]
 
     corners_dists = []
-    for board_corner, is_covered in zip(positions, are_corners_covered):
+    for board_corner, is_covered in zip(positions, are_positions_covered):
         if is_covered:
             corner_dist = 0
         else:
@@ -57,9 +57,10 @@ def has_no_legal_moves(state: Board):
     return state.get_legal_moves(0) == []
 
 
-def get_min_target_dists(targets):
+def get_min_target_dists(state: Board, targets):
+    targets = list(filter(lambda target: state.get_position(*target) != 0, targets))
     if len(targets) == 1:
-        return None
+        return BIG_NUMBER
     min_distance = tiles_distance(targets[0], targets[1])
     for i in range(1, len(targets)):
         for j in range(i):
@@ -137,6 +138,8 @@ class BlokusCornersProblem(SearchProblem):
         self.board = Board(board_w, board_h, 1, piece_list, starting_point)
         self.expanded = 0
         self.min_targets_dist = min(board_w, board_h) - 2
+        self.corners = [(0, 0), (0, self.board.board_h - 1), (self.board.board_w - 1, 0),
+                        (self.board.board_w - 1, self.board.board_h - 1)]
 
     def get_start_state(self):
         """
@@ -171,11 +174,8 @@ class BlokusCornersProblem(SearchProblem):
         return sum(action.piece.get_num_tiles() for action in actions)
 
 
-def get_corners_dists(state, problem):
-    w = problem.board.board_w
-    h = problem.board.board_h
-    corners = [(0, 0), (0, h - 1), (w - 1, 0), (w - 1, h - 1)]
-    return get_dist_from_positions(state, corners)
+def get_corners_dists(state, problem: BlokusCornersProblem):
+    return get_dist_from_positions(state, problem.corners)
 
 
 def max_distance_corners_heuristic(state, problem: BlokusCornersProblem):
@@ -199,9 +199,7 @@ def mean_distance_corners_heuristic(state, problem: BlokusCornersProblem):
 
 
 def get_covered_corners(state, problem: BlokusCornersProblem):
-    corners = [(0, 0), (0, problem.board.board_h - 1), (problem.board.board_w - 1, 0),
-               (problem.board.board_w - 1, problem.board.board_h - 1)]
-    covered_corners = sum(state.get_position(*corner) == 0 for corner in corners)
+    covered_corners = sum(state.get_position(*corner) == 0 for corner in problem.corners)
     return covered_corners
 
 
@@ -223,9 +221,7 @@ def is_near_point_covered(state: Board, problem: SearchProblem, point):
 
 
 def is_near_corner_covered(state, problem: BlokusCornersProblem):
-    corners = [(0, 0), (0, problem.board.board_h - 1), (problem.board.board_w - 1, 0),
-               (problem.board.board_w - 1, problem.board.board_h - 1)]
-    for corner in corners:
+    for corner in problem.corners:
         if is_near_point_covered(state, problem, corner):
             return True
     return False
@@ -237,8 +233,8 @@ def is_corner_fail_state(state, problem: BlokusCornersProblem):
 
 def small_pieces_corners_heuristic(state, problem: BlokusCornersProblem):
     corners_to_cover = num_of_corners_to_cover(state, problem)
-    min_dist_plus_1 = problem.min_targets_dist + 1
-    smallest_pieces_sum = get_sum_of_smallest_k(state, corners_to_cover, min_dist_plus_1)
+    min_dist = get_min_target_dists(state, problem.corners)
+    smallest_pieces_sum = get_sum_of_smallest_k(state, corners_to_cover, min_dist + 1)
     return smallest_pieces_sum
 
 
@@ -276,7 +272,7 @@ class BlokusCoverProblem(SearchProblem):
         self.targets = targets.copy()
         self.standardized_targets = [target[::-1] for target in targets]
         self.expanded = 0
-        self.min_targets_dist = get_min_target_dists(self.standardized_targets)
+
 
     def get_start_state(self):
         """
@@ -314,6 +310,10 @@ class BlokusCoverProblem(SearchProblem):
         return sum(action.piece.get_num_tiles() for action in actions)
 
 
+def covered_targets_heuristic(state: Board, problem: BlokusCoverProblem):
+    return len(problem.targets) - sum(state.get_position(*target) == 0 for target in problem.standardized_targets)
+
+
 def get_targets_dists(state, problem: BlokusCoverProblem, targets):
     return get_dist_from_positions(state, targets)
 
@@ -344,8 +344,8 @@ def get_num_targets_to_cover(state, problem):
 
 def small_pieces_cover_heuristic(state, problem: BlokusCoverProblem):
     targets_to_cover = get_num_targets_to_cover(state, problem)
-    min_dist_plus_1 = problem.min_targets_dist + 1
-    smallest_pieces_sum = get_sum_of_smallest_k(state, targets_to_cover, min_dist_plus_1)
+    min_dist = get_min_target_dists(state, problem.standardized_targets)
+    smallest_pieces_sum = get_sum_of_smallest_k(state, targets_to_cover, min_dist + 1)
     return smallest_pieces_sum
 
 
@@ -362,6 +362,10 @@ def is_cover_fail_state(state, problem: BlokusCoverProblem):
 
 def blokus_cover_heuristic(state, problem):
     detect_fails = True
+
+    if problem.is_goal_state(state):
+        return 0
+
     if detect_fails:
         if is_cover_fail_state(state, problem):
             return BIG_NUMBER
@@ -472,7 +476,6 @@ class ClosestLocationSearch:
                                                   blacklist=filter(lambda x: x != target, self.standardized_targets))
             actions_to_add = astar(mini_problem, closest_location_heuristic)
             self.expanded += mini_problem.expanded
-            print(self.expanded)
             back_trace += actions_to_add
         return back_trace
 

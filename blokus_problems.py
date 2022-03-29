@@ -43,9 +43,6 @@ def get_legal_next_positions(state: Board):
 
 
 def get_dist_from_positions(state: Board, positions):
-    w = state.board_w
-    h = state.board_h
-
     legal_next_positions = get_legal_next_positions(state)
 
     if len(positions) == 0 or len(legal_next_positions) == 0:
@@ -79,6 +76,13 @@ def get_min_target_dists(targets):
                 if distance < min_distance:
                     min_distance = distance
     return min_distance
+
+
+def get_sum_of_smallest_k(state, pieces_num, max_size):
+    pieces_sizes = [piece.get_num_tiles() for piece in state.piece_list.pieces]
+    small_sizes = [size for size in pieces_sizes if size <= max_size]
+    smallest_k = sorted(small_sizes)[:pieces_num]
+    return sum(smallest_k)
 
 
 class BlokusFillProblem(SearchProblem):
@@ -132,7 +136,7 @@ class BlokusCornersProblem(SearchProblem):
     def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0)):
         self.board = Board(board_w, board_h, 1, piece_list, starting_point)
         self.expanded = 0
-        self.min_corners_dist = min(board_w, board_h) - 2
+        self.min_targets_dist = min(board_w, board_h) - 2
 
     def get_start_state(self):
         """
@@ -231,16 +235,9 @@ def is_corner_fail_state(state, problem: BlokusCornersProblem):
     return has_no_legal_moves(state) or is_near_corner_covered(state, problem)
 
 
-def get_sum_of_smallest_k(state, pieces_num, max_size):
-    pieces_sizes = [piece.get_num_tiles() for piece in state.piece_list.pieces]
-    small_sizes = [size for size in pieces_sizes if size <= max_size]
-    smallest_k = sorted(small_sizes)[:pieces_num]
-    return sum(smallest_k)
-
-
 def small_pieces_corners_heuristic(state, problem: BlokusCornersProblem):
     corners_to_cover = num_of_corners_to_cover(state, problem)
-    min_dist_plus_1 = problem.min_corners_dist + 1
+    min_dist_plus_1 = problem.min_targets_dist + 1
     smallest_pieces_sum = get_sum_of_smallest_k(state, corners_to_cover, min_dist_plus_1)
     return smallest_pieces_sum
 
@@ -279,6 +276,7 @@ class BlokusCoverProblem(SearchProblem):
         self.targets = targets.copy()
         self.standardized_targets = [target[::-1] for target in targets]
         self.expanded = 0
+        self.min_targets_dist = get_min_target_dists(self.standardized_targets)
 
     def get_start_state(self):
         """
@@ -303,6 +301,7 @@ class BlokusCoverProblem(SearchProblem):
         cost of expanding to that successor
         """
         # Note that for the search problem, there is only one player - #0
+        print("+1")
         self.expanded = self.expanded + 1
         return [(state.do_move(0, move), move, move.piece.get_num_tiles()) for move in state.get_legal_moves(0)]
 
@@ -328,6 +327,29 @@ def mean_distance_cover_heuristic(state, problem: BlokusCoverProblem):
         return 0
 
 
+def max_distance_cover_heuristic(state, problem: BlokusCoverProblem):
+    targets_dists = get_targets_dists(state, problem, problem.standardized_targets)
+    if targets_dists is not None:
+        return max(targets_dists)
+    else:
+        return 0
+
+
+def get_num_targets_to_cover(state, problem):
+    num_targets = 0
+    for target in problem.standardized_targets:
+        if state.get_position(*target) != 0:
+            num_targets += 1
+    return num_targets
+
+
+def small_pieces_cover_heuristic(state, problem: BlokusCoverProblem):
+    targets_to_cover = get_num_targets_to_cover(state, problem)
+    min_dist_plus_1 = problem.min_targets_dist + 1
+    smallest_pieces_sum = get_sum_of_smallest_k(state, targets_to_cover, min_dist_plus_1)
+    return smallest_pieces_sum
+
+
 def is_near_target_covered(state, problem: BlokusCoverProblem):
     for target in problem.standardized_targets:
         if is_near_point_covered(state, problem, target):
@@ -340,13 +362,16 @@ def is_cover_fail_state(state, problem: BlokusCoverProblem):
 
 
 def blokus_cover_heuristic(state, problem):
-    # TODO: improve with other heuristic
     detect_fails = True
     if detect_fails:
         if is_cover_fail_state(state, problem):
             return BIG_NUMBER
 
-    return mean_distance_cover_heuristic(state, problem)
+    smallest_pieces = small_pieces_cover_heuristic(state, problem)
+    max_dist_value = max_distance_cover_heuristic(state, problem)
+    value = max(smallest_pieces, max_dist_value)
+
+    return value
 
 
 class MiniBlokusCoverProblem(BlokusCoverProblem):

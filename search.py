@@ -92,7 +92,7 @@ def _generic_search(problem: SearchProblem, fringe, use_cost=False, heuristic=No
         fringe.push(SearchItem(problem.get_start_state(), []), priority)
     else:
         fringe.push(SearchItem(problem.get_start_state(), []))
-    closed = []
+    closed = set()
 
     while not fringe.isEmpty():
         curr_state, curr_actions = fringe.pop()
@@ -109,7 +109,7 @@ def _generic_search(problem: SearchProblem, fringe, use_cost=False, heuristic=No
                     fringe.push(SearchItem(state, curr_actions + [action]), priority)
                 else:
                     fringe.push(SearchItem(state, curr_actions + [action]))
-            closed += [curr_state]
+            closed.add(curr_state)
 
 
 def depth_first_search(problem):

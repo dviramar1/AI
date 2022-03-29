@@ -187,7 +187,7 @@ def get_covered_corners(state, problem: BlokusCornersProblem):
     return covered_corners
 
 
-def covered_corners_heuristic(state, problem: BlokusCornersProblem):
+def num_of_corners_to_cover(state, problem: BlokusCornersProblem):
     covered_corners = get_covered_corners(state, problem)
     return 4 - covered_corners
 
@@ -217,6 +217,17 @@ def is_corner_fail_state(state, problem: BlokusCornersProblem):
     return has_no_legal_moves(state) or is_near_corner_covered(state, problem)
 
 
+def get_smallest_piece(state):
+    pieces_sizes = [piece.get_num_tiles() for piece in state.piece_list.pieces]
+    return min(pieces_sizes)
+
+
+def get_sum_of_smallest_k_pieces(state, k):
+    pieces_sizes = [piece.get_num_tiles() for piece in state.piece_list.pieces]
+    smallest_k = sorted(pieces_sizes)[:k]
+    return sum(smallest_k)
+
+
 def blokus_corners_heuristic(state, problem: BlokusCornersProblem):
     """
     Your heuristic for the BlokusCornersProblem goes here.
@@ -238,10 +249,10 @@ def blokus_corners_heuristic(state, problem: BlokusCornersProblem):
         if is_corner_fail_state(state, problem):
             return BIG_NUMBER
 
-    covered_value = covered_corners_heuristic(state, problem)
-    # mean_dist_value = mean_distance_corners_heuristic(state, problem)
+    corners_to_cover = num_of_corners_to_cover(state, problem)
+    smallest_k = get_sum_of_smallest_k_pieces(state, corners_to_cover)
     max_dist_value = max_distance_corners_heuristic(state, problem)
-    value = max(covered_value, max_dist_value)
+    value = max(smallest_k, max_dist_value)
 
     return value
 

@@ -81,8 +81,16 @@ def get_min_target_dists(targets):
 def get_sum_of_smallest_k(state, pieces_num, max_size):
     pieces_sizes = [piece.get_num_tiles() for piece in state.piece_list.pieces]
     small_sizes = [size for size in pieces_sizes if size <= max_size]
-    smallest_k = sorted(small_sizes)[:pieces_num]
-    return sum(smallest_k)
+    big_sizes = [size for size in pieces_sizes if size > max_size]
+
+    smallest_k_sum = sum(sorted(small_sizes)[:pieces_num])
+    value = smallest_k_sum
+
+    if len(big_sizes) > 0:
+        smallest_big = min(big_sizes)
+        value = min(value, smallest_big)
+
+    return value
 
 
 class BlokusFillProblem(SearchProblem):
@@ -263,9 +271,9 @@ def blokus_corners_heuristic(state, problem: BlokusCornersProblem):
         if is_corner_fail_state(state, problem):
             return BIG_NUMBER
 
-    smallest_pieces = small_pieces_corners_heuristic(state, problem)
+    smallest_pieces_value = small_pieces_corners_heuristic(state, problem)
     max_dist_value = max_distance_corners_heuristic(state, problem)
-    value = max(smallest_pieces, max_dist_value)
+    value = max(smallest_pieces_value, max_dist_value)
 
     return value
 
@@ -301,7 +309,6 @@ class BlokusCoverProblem(SearchProblem):
         cost of expanding to that successor
         """
         # Note that for the search problem, there is only one player - #0
-        print("+1")
         self.expanded = self.expanded + 1
         return [(state.do_move(0, move), move, move.piece.get_num_tiles()) for move in state.get_legal_moves(0)]
 

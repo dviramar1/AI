@@ -1,1 +1,2 @@
-d.f. + max(smallest_pieces, max_dist_value) - Expanded nodes: 21, score: 8
+before fix - d.f. + max(smallest_pieces, max_dist_value) - Expanded nodes: 21, score: 8
+after fix - Expanded nodes: 48, score: 8 but long run time

@@ -271,9 +271,9 @@ def blokus_corners_heuristic(state, problem: BlokusCornersProblem):
         if is_corner_fail_state(state, problem):
             return BIG_NUMBER
 
-    smallest_pieces = small_pieces_corners_heuristic(state, problem)
+    smallest_pieces_value = small_pieces_corners_heuristic(state, problem)
     max_dist_value = max_distance_corners_heuristic(state, problem)
-    value = max(smallest_pieces, max_dist_value)
+    value = max(smallest_pieces_value, max_dist_value)
 
     return value
 

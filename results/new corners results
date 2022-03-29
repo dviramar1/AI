@@ -6,7 +6,7 @@ detect fails + covered corners: 3740, score: 17
 d.f. + 0.5 mean dist + 0.5 covered corners: 4024, score: 17
 d.f. + 0.5 mean dist + 0.5 covered corners: 3700, score: 17
 d.f + max(mean dist, covered corners): 3173, score: 17
-d.f + max(smallest_pieces, max_dist_value): *167*, score: 17
+d.f + max(smallest_pieces, max_dist_value): *167*, score: 17 -- after fix - 170
 d.f + smallest_pieces: 170, score: 17
 
 5 X 5 board

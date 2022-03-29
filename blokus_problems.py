@@ -21,17 +21,7 @@ def is_in_board(position, state: Board):
 
 
 def is_legal_next_pos(state: Board, pos):
-    straight_neighbors = [(pos[0] + 1, pos[1]), (pos[0] - 1, pos[1]), (pos[0], pos[1] + 1), (pos[0], pos[1] - 1)]
-    diagonal_neighbors = [(pos[0] + 1, pos[1] + 1), (pos[0] + 1, pos[1] - 1), (pos[0] - 1, pos[1] + 1),
-                          (pos[0] - 1, pos[1] - 1)]
-
-    straight_neighbors_num = sum(
-        map(lambda pos: is_in_board(pos, state) and state.get_position(*pos) == 0, straight_neighbors))
-    diagonal_neighbors_num = sum(
-        map(lambda pos: is_in_board(pos, state) and state.get_position(*pos) == 0, diagonal_neighbors))
-
-    is_legal_next_pos = straight_neighbors_num == 0 and diagonal_neighbors_num > 0
-    return is_legal_next_pos
+    return state.check_tile_legal(0, pos[0], pos[1])
 
 
 def get_legal_next_positions(state: Board):

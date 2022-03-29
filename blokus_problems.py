@@ -309,7 +309,6 @@ class BlokusCoverProblem(SearchProblem):
         cost of expanding to that successor
         """
         # Note that for the search problem, there is only one player - #0
-        print("+1")
         self.expanded = self.expanded + 1
         return [(state.do_move(0, move), move, move.piece.get_num_tiles()) for move in state.get_legal_moves(0)]
 

@@ -1,9 +1,11 @@
 6 X 6 board
 null heursitic - too much time
-mean + detect fails: 4104, score: 17, time: 2:30
 detect fails: 4226, score: 17
+mean + detect fails: 4104, score: 17, time: 2:30
 detect fails + covered corners: 3740, score: 17
 d.f. + 0.5 mean dist + 0.5 covered corners: 4024, score: 17
+d.f. + 0.5 mean dist + 0.5 covered corners: 3700, score: 17
+d.f + max(mean dist, covered corners): *3173*, score: 17
 
 
 5 X 5 board

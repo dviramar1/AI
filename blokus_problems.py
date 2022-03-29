@@ -238,7 +238,12 @@ def blokus_corners_heuristic(state, problem: BlokusCornersProblem):
         if is_corner_fail_state(state, problem):
             return BIG_NUMBER
 
-    return mean_distance_corners_heuristic(state, problem)
+    covered_value = covered_corners_heuristic(state, problem)
+    # mean_dist_value = mean_distance_corners_heuristic(state, problem)
+    max_dist_value = max_distance_corners_heuristic(state, problem)
+    value = max(covered_value, max_dist_value)
+
+    return value
 
 
 class BlokusCoverProblem(SearchProblem):

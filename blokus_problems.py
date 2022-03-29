@@ -21,7 +21,9 @@ def is_in_board(position, state: Board):
 
 
 def is_legal_next_pos(state: Board, pos):
-    return state.check_tile_legal(0, pos[0], pos[1])
+    x = pos[0]
+    y = pos[1]
+    return state.check_tile_legal(0, x, y) and state.check_tile_attached(0, x, y)
 
 
 def get_legal_next_positions(state: Board):

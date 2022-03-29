@@ -68,6 +68,19 @@ def has_no_legal_moves(state: Board):
     return state.get_legal_moves(0) == []
 
 
+def get_min_target_dists(targets):
+    if len(targets) == 1:
+        return None
+    min_distance = tiles_distance(targets[0], targets[1])
+    for i in range(1, len(targets)):
+        for j in range(i):
+            if i != j:
+                distance = tiles_distance(targets[i], targets[j])
+                if distance < min_distance:
+                    min_distance = distance
+    return min_distance
+
+
 class BlokusFillProblem(SearchProblem):
     """
     A one-player Blokus game as a search problem.
@@ -119,6 +132,7 @@ class BlokusCornersProblem(SearchProblem):
     def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0)):
         self.board = Board(board_w, board_h, 1, piece_list, starting_point)
         self.expanded = 0
+        self.min_corners_dist = min(board_w, board_h) - 2
 
     def get_start_state(self):
         """
@@ -217,15 +231,18 @@ def is_corner_fail_state(state, problem: BlokusCornersProblem):
     return has_no_legal_moves(state) or is_near_corner_covered(state, problem)
 
 
-def get_smallest_piece(state):
+def get_sum_of_smallest_k(state, pieces_num, max_size):
     pieces_sizes = [piece.get_num_tiles() for piece in state.piece_list.pieces]
-    return min(pieces_sizes)
-
-
-def get_sum_of_smallest_k_pieces(state, k):
-    pieces_sizes = [piece.get_num_tiles() for piece in state.piece_list.pieces]
-    smallest_k = sorted(pieces_sizes)[:k]
+    small_sizes = [size for size in pieces_sizes if size <= max_size]
+    smallest_k = sorted(small_sizes)[:pieces_num]
     return sum(smallest_k)
+
+
+def small_pieces_corners_heuristic(state, problem: BlokusCornersProblem):
+    corners_to_cover = num_of_corners_to_cover(state, problem)
+    min_dist_plus_1 = problem.min_corners_dist + 1
+    smallest_pieces_sum = get_sum_of_smallest_k(state, corners_to_cover, min_dist_plus_1)
+    return smallest_pieces_sum
 
 
 def blokus_corners_heuristic(state, problem: BlokusCornersProblem):
@@ -249,10 +266,9 @@ def blokus_corners_heuristic(state, problem: BlokusCornersProblem):
         if is_corner_fail_state(state, problem):
             return BIG_NUMBER
 
-    corners_to_cover = num_of_corners_to_cover(state, problem)
-    smallest_k = get_sum_of_smallest_k_pieces(state, corners_to_cover)
+    smallest_pieces = small_pieces_corners_heuristic(state, problem)
     max_dist_value = max_distance_corners_heuristic(state, problem)
-    value = max(smallest_k, max_dist_value)
+    value = max(smallest_pieces, max_dist_value)
 
     return value
 

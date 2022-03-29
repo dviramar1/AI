@@ -81,8 +81,16 @@ def get_min_target_dists(targets):
 def get_sum_of_smallest_k(state, pieces_num, max_size):
     pieces_sizes = [piece.get_num_tiles() for piece in state.piece_list.pieces]
     small_sizes = [size for size in pieces_sizes if size <= max_size]
-    smallest_k = sorted(small_sizes)[:pieces_num]
-    return sum(smallest_k)
+    big_sizes = [size for size in pieces_sizes if size > max_size]
+
+    smallest_k_sum = sum(sorted(small_sizes)[:pieces_num])
+    value = smallest_k_sum
+
+    if len(big_sizes) > 0:
+        smallest_big = min(big_sizes)
+        value = min(value, smallest_big)
+
+    return value
 
 
 class BlokusFillProblem(SearchProblem):

@@ -188,16 +188,6 @@ def max_distance_corners_heuristic(state, problem: BlokusCornersProblem):
         return max((h - 1) / 2, (w - 1) / 2)
 
 
-def mean_distance_corners_heuristic(state, problem: BlokusCornersProblem):
-    corners_dists = get_corners_dists(state, problem)
-    if corners_dists is not None:
-        return mean(corners_dists)
-    else:
-        w = problem.board.board_w
-        h = problem.board.board_h
-        return min((h - 1) / 2, (w - 1) / 2)
-
-
 def get_covered_corners(state, problem: BlokusCornersProblem):
     covered_corners = sum(state.get_position(*corner) == 0 for corner in problem.corners)
     return covered_corners
@@ -447,8 +437,6 @@ class ClosestLocationSearch:
         return min(zip(targets, dists), key=lambda x: x[1])[0]
 
     def solve(self):
-        # TODO: handle case where one target solution ruins to the other (maybe by not allowed positions)
-        # TODO: go to closest point
         """
         This method should return a sequence of actions that covers all target locations on the board.
         This time we trade optimality for speed.

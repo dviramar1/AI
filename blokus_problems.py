@@ -318,14 +318,6 @@ def get_targets_dists(state, problem: BlokusCoverProblem, targets):
     return get_dist_from_positions(state, targets)
 
 
-def mean_distance_cover_heuristic(state, problem: BlokusCoverProblem):
-    targets_dists = get_targets_dists(state, problem, problem.standardized_targets)
-    if targets_dists is not None:
-        return mean(targets_dists)
-    else:
-        return 0
-
-
 def max_distance_cover_heuristic(state, problem: BlokusCoverProblem):
     targets_dists = get_targets_dists(state, problem, problem.standardized_targets)
     if targets_dists is not None:
@@ -384,6 +376,12 @@ class MiniBlokusCoverProblem(BlokusCoverProblem):
             self.board.add_move(0, action)
         self.blacklist = blacklist
 
+    def is_goal_state(self, state):
+        for target in self.standardized_targets:
+            if state.get_position(*target) != 0:
+                return False
+        return not any(is_near_point_covered(state, self, target) for target in self.blacklist)
+
 
 def is_near_target_blacklist_covered(state: Board, problem: MiniBlokusCoverProblem):
     for target in problem.standardized_targets:
@@ -403,11 +401,17 @@ def is_closest_fail_state(state, problem: MiniBlokusCoverProblem):
 
 def closest_location_heuristic(state: Board, problem: MiniBlokusCoverProblem):
     detect_fails = True
+
     if detect_fails:
         if is_closest_fail_state(state, problem):
             return BIG_NUMBER
 
-    return mean_distance_cover_heuristic(state, problem)
+    pieces_sizes = [piece.get_num_tiles() for piece in state.piece_list.pieces]
+    smallest_pieces = min(pieces_sizes)
+    max_dist_value = max_distance_cover_heuristic(state, problem)
+    value = max(smallest_pieces, max_dist_value)
+
+    return value
 
 
 class ClosestLocationSearch:
@@ -469,11 +473,10 @@ class ClosestLocationSearch:
         while targets != []:
             target = self.closest_target(targets, back_trace)
             targets = list(filter(lambda x: x != target, targets))
-            # for target in self.targets:
             mini_problem = MiniBlokusCoverProblem(back_trace, self.board.board_w, self.board.board_h,
                                                   self.board.piece_list, starting_point=self.starting_point,
                                                   targets=[target[::-1]],
-                                                  blacklist=filter(lambda x: x != target, self.standardized_targets))
+                                                  blacklist=list(filter(lambda x: x != target, self.standardized_targets)))
             actions_to_add = astar(mini_problem, closest_location_heuristic)
             self.expanded += mini_problem.expanded
             back_trace += actions_to_add

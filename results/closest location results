@@ -1,0 +1,5 @@
+python3 game.py -p valid_pieces.txt -s 10 10 -z sub-optimal -x 7 7 "[(5,5), (8,8), (4,9)]"
+Expanded nodes: 6 score: 9
+
+python3 game.py -p valid_pieces.txt -s 10 10 -z sub-optimal -x 5 5 "[(3,4), (6,6), (7,5)]"
+Expanded nodes: 12 score: 9

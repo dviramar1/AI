@@ -85,6 +85,10 @@ def get_sum_of_smallest_k(state, pieces_num, max_size):
 
     return value
 
+def is_near_target_covered(state: Board, target):
+    return state.get_position(*target) != 0 and not state.check_tile_legal(0, *target)
+
+
 
 class BlokusFillProblem(SearchProblem):
     """
@@ -212,7 +216,7 @@ def is_near_point_covered(state: Board, problem: SearchProblem, point):
 
 def is_near_corner_covered(state, problem: BlokusCornersProblem):
     for corner in problem.corners:
-        if is_near_point_covered(state, problem, corner):
+        if is_near_target_covered(state, corner):
             return True
     return False
 
@@ -333,7 +337,7 @@ def small_pieces_cover_heuristic(state, problem: BlokusCoverProblem):
 
 def is_near_target_covered(state, problem: BlokusCoverProblem):
     for target in problem.standardized_targets:
-        if is_near_point_covered(state, problem, target):
+        if is_near_target_covered(state, target):
             return True
     return False
 
@@ -366,20 +370,23 @@ class MiniBlokusCoverProblem(BlokusCoverProblem):
             self.board.add_move(0, action)
         self.blacklist = blacklist
 
-    def is_goal_state(self, state):
+    def is_goal_state(self, state: Board):
         for target in self.standardized_targets:
             if state.get_position(*target) != 0:
                 return False
-        return not any(is_near_point_covered(state, self, target) for target in self.blacklist)
+        for target in self.blacklist:
+            if is_near_target_covered(state, self, target):
+                return False
+        return True
 
 
 def is_near_target_blacklist_covered(state: Board, problem: MiniBlokusCoverProblem):
     for target in problem.standardized_targets:
-        if is_near_point_covered(state, problem, target):
+        if is_near_target_covered(state, problem, target):
             return True
 
     for target in problem.blacklist:
-        if is_near_point_covered(state, problem, target):
+        if is_near_target_covered(state, problem, target):
             return True
 
     return False

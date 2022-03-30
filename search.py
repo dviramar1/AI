@@ -110,6 +110,7 @@ def _generic_search(problem: SearchProblem, fringe, use_cost=False, heuristic=No
                 else:
                     fringe.push(SearchItem(state, curr_actions + [action]))
             closed.add(curr_state)
+    return []
 
 
 def depth_first_search(problem):

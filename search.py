@@ -4,7 +4,6 @@ In search.py, you will implement generic search algorithms
 import os
 from dataclasses import dataclass
 from os import system
-from time import sleep
 from tkinter import W
 
 from typing import List
@@ -67,24 +66,13 @@ class SearchItem:
         yield self.actions
 
 
-def print_state(state):
-    state = state.state
-    new_rows = []
-    for row in state:
-        new_row = [" " if item == -1 else "X" for item in row]
-        new_rows.append(new_row)
-    print('\n'.join(map(str, new_rows)))
-    print()
-    sleep(0.3)
-
-
 def _generic_search(problem: SearchProblem, fringe, use_cost=False, heuristic=None):
     """
     Implements a generic search using the given fringe
 
     Args:
         problem (SearchProblem): The problem to search on
-        fringe (object): A fringe to keep the element in
+        fringe (object): A fringe to keep the elements in
     """
 
     if use_cost:

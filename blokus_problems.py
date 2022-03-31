@@ -100,9 +100,9 @@ def get_sum_of_smallest_k(state, pieces_num, max_size):
     return value
 
 
-def is_near_target_covered(state: Board, target):
+def is_near_position_covered(state: Board, position):
     """ is the position near the target is covered in a way that prevents covering the target. """
-    return state.get_position(*target) != 0 and not state.check_tile_legal(0, *target)
+    return state.get_position(*position) != 0 and not state.check_tile_legal(0, *position)
 
 
 # END of general methods
@@ -227,7 +227,7 @@ def num_of_corners_to_cover(state, problem: BlokusCornersProblem):
 def is_near_corner_covered(state, problem: BlokusCornersProblem):
     """ checks whether exists a corner which is blocked by near piece. """
     for corner in problem.corners:
-        if is_near_target_covered(state, corner):
+        if is_near_position_covered(state, corner):
             return True
     return False
 
@@ -351,7 +351,7 @@ def small_pieces_cover_heuristic(state, problem: BlokusCoverProblem):
 def is_near_target_covered(state, problem: BlokusCoverProblem):
     """ there is a similar documented corners function. """
     for target in problem.standardized_targets:
-        if is_near_target_covered(state, target):
+        if is_near_position_covered(state, target):
             return True
     return False
 
@@ -390,7 +390,7 @@ class MiniBlokusCoverProblem(BlokusCoverProblem):
             if state.get_position(*target) != 0:
                 return False
         for target in self.blacklist:
-            if is_near_target_covered(state, self, target):
+            if is_near_position_covered(state, target):
                 return False
         return True
 
@@ -398,11 +398,11 @@ class MiniBlokusCoverProblem(BlokusCoverProblem):
 def is_near_target_blacklist_covered(state: Board, problem: MiniBlokusCoverProblem):
     """ @return whether there is a piece blocking a target. """
     for target in problem.standardized_targets:
-        if is_near_target_covered(state, problem, target):
+        if is_near_position_covered(state, target):
             return True
 
     for target in problem.blacklist:
-        if is_near_target_covered(state, problem, target):
+        if is_near_position_covered(state, target):
             return True
 
     return False

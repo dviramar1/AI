@@ -1,3 +1,5 @@
+from time import sleep
+
 import numpy as np
 import abc
 import util
@@ -50,10 +52,21 @@ class ReflexAgent(Agent):
         successor_game_state = current_game_state.generate_successor(action=action)
         board = successor_game_state.board
         max_tile = successor_game_state.max_tile
-        score = successor_game_state.score
+        state_score = successor_game_state.score
 
-        "*** YOUR CODE HERE ***"
-        return score
+        big_number_1 = 10 ** 5
+        big_number_2 = 10 ** 4
+
+        bonus_mapping = {Action.RIGHT: 2 * big_number_1, Action.DOWN: 2 * big_number_1,
+                         Action.LEFT: big_number_1, Action.UP: 0}
+        direction_score = bonus_mapping[action]
+
+        if board[3, 3] == max_tile:
+            corner_score = big_number_2
+        else:
+            corner_score = 0
+
+        return state_score + direction_score + corner_score
 
 
 def score_evaluation_function(current_game_state):
@@ -113,7 +126,6 @@ class MinmaxAgent(MultiAgentSearchAgent):
         util.raiseNotDefined()
 
 
-
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
@@ -125,7 +137,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         """*** YOUR CODE HERE ***"""
         util.raiseNotDefined()
-
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -142,9 +153,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         """
         """*** YOUR CODE HERE ***"""
         util.raiseNotDefined()
-
-
-
 
 
 def better_evaluation_function(current_game_state):

@@ -54,14 +54,19 @@ class ReflexAgent(Agent):
         max_tile = successor_game_state.max_tile
         state_score = successor_game_state.score
 
-        big_number = 10 ** 5
+        big_number_1 = 10 ** 5
+        big_number_2 = 10 ** 4
 
-        bonus_mapping = {Action.RIGHT: 2 * big_number, Action.DOWN: 2 * big_number,
-                         Action.LEFT: big_number, Action.UP: 0}
+        bonus_mapping = {Action.RIGHT: 2 * big_number_1, Action.DOWN: 2 * big_number_1,
+                         Action.LEFT: big_number_1, Action.UP: 0}
         direction_score = bonus_mapping[action]
 
-        
-        return state_score + direction_score
+        if board[3, 3] == max_tile:
+            corner_score = big_number_2
+        else:
+            corner_score = 0
+
+        return state_score + direction_score + corner_score
 
 
 def score_evaluation_function(current_game_state):

@@ -1,3 +1,4 @@
+from enum import auto, Enum
 from time import sleep
 
 import numpy as np
@@ -104,7 +105,38 @@ class MultiAgentSearchAgent(Agent):
         return
 
 
+class Phase(Enum):
+    MAX = auto()
+    MIN = auto()
+
 class MinmaxAgent(MultiAgentSearchAgent):
+    def minimax(evaluation, depth, game_state, actions, phase: Phase):
+        value = 0 if phase == Phase.max else 10000
+        actions = []
+        if depth == 0:
+            return evaluation(game_state), actions
+
+        if phase == Phase.MAX:
+            legal_actions = get_agent_legal_actions(game_state)
+            for action in legal_actions:
+                successor_game_state = game_state.generate_successor(action=action)
+                new_value, new_actions = minimax(evaluation, depth - 1, successor_game_state, actions + action, Phase.MIN)
+                if new_value >= value:
+                    value = new_value
+                    actions = new_actions
+
+        else:
+            legal_actions = get_agent_legal_actions(game_state)
+            for action in legal_actions:
+                successor_game_state = game_state.generate_successor(action=action)
+                new_value, new_actions = minimax(evaluation, depth - 1, successor_game_state, actions + action, Phase.MAX)
+                if new_value <= value:
+                    value = new_value
+                    actions = new_actions
+
+        return value, actions
+
+
     def get_action(self, game_state):
         """
         Returns the minimax action from the current gameState using self.depth
@@ -122,8 +154,8 @@ class MinmaxAgent(MultiAgentSearchAgent):
         game_state.generate_successor(agent_index, action):
             Returns the successor game state after an agent takes an action
         """
-        """*** YOUR CODE HERE ***"""
-        util.raiseNotDefined()
+
+        return minimax(self.evaluation_function, self.depth, game_state, [], Phase.MAX)
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):

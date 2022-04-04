@@ -1,9 +1,14 @@
+import math
+from enum import auto, Enum
 from time import sleep
 
 import numpy as np
 import abc
 import util
 from game import Agent, Action
+from typing import Callable, List, Tuple
+
+from ex2.game_state import GameState
 
 
 class ReflexAgent(Agent):
@@ -104,7 +109,30 @@ class MultiAgentSearchAgent(Agent):
         return
 
 
+class Phase(Enum):
+    max = auto()
+    min = auto()
+
+
 class MinmaxAgent(MultiAgentSearchAgent):
+
+    def minimax(self, game_state: GameState, depth: int, phase: Phase):
+        if depth == 0:
+            return self.evaluation_function(game_state), None
+
+        best_value = -math.inf if phase == Phase.max else math.inf
+        legal_actions = game_state.get_agent_legal_actions()
+        for action in legal_actions:
+            successor_game_state = game_state.generate_successor(action=action)
+            next_phase = Phase.min if phase == Phase.max else Phase.max
+            new_value, _ = self.minimax(successor_game_state, depth - 1, next_phase)
+            is_better = new_value > best_value if phase == Phase.max else new_value < best_value
+            if is_better:
+                best_value = new_value
+                best_action = action
+
+        return best_value, best_action
+
     def get_action(self, game_state):
         """
         Returns the minimax action from the current gameState using self.depth
@@ -122,8 +150,9 @@ class MinmaxAgent(MultiAgentSearchAgent):
         game_state.generate_successor(agent_index, action):
             Returns the successor game state after an agent takes an action
         """
-        """*** YOUR CODE HERE ***"""
-        util.raiseNotDefined()
+
+        _, best_action = self.minimax(game_state, self.depth, Phase.max)
+        return best_action
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):

@@ -171,7 +171,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         for action in legal_actions:
             successor_game_state = game_state.generate_successor(action=action)
             next_phase = Phase.min if phase == Phase.max else Phase.max
-            new_value, action = self.alphabeta(successor_game_state, depth - 1, alpha, beta, next_phase)
+            new_value, _ = self.alphabeta(successor_game_state, depth - 1, alpha, beta, next_phase)
             if phase == Phase.max:
                 if new_value >= beta:
                     break
@@ -187,8 +187,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-
-        return self.alphabeta(game_state, self.depth, -math.inf, math.inf, Phase.max)[1]
+        best_value, action = self.alphabeta(game_state, self.depth, -math.inf, math.inf, Phase.max)
+        return action
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):

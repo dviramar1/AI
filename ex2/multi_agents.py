@@ -118,13 +118,13 @@ class MinimaxPhase(Enum):
 class MinmaxAgent(MultiAgentSearchAgent):
 
     def minimax(self, game_state: GameState, depth: int, phase: MinimaxPhase):
-        if depth == 0:
+        if depth == 0:  # TODO: terminal mode
             return self.evaluation_function(game_state), None
 
         best_value = -math.inf if phase == MinimaxPhase.max else math.inf
         legal_actions = game_state.get_agent_legal_actions() if MinimaxPhase.max else game_state.get_opponent_legal_actions()
         for action in legal_actions:
-            successor_game_state = game_state.generate_successor(action=action)
+            successor_game_state = game_state.generate_successor(action=action)  # TODO: agent index?
             next_phase = MinimaxPhase.min if phase == MinimaxPhase.max else MinimaxPhase.max
             new_value, _ = self.minimax(successor_game_state, depth - 1, next_phase)
             is_better = new_value > best_value if phase == MinimaxPhase.max else new_value < best_value
@@ -209,7 +209,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
         else:
             raise Exception(f"phase {phase} not supported here.")
-
 
     def get_action(self, game_state):
         """

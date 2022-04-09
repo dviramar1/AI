@@ -195,36 +195,36 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     Your expectimax agent (question 4)
     """
 
+    def max_phase(self, game_state: GameState, depth: int):
+        best_value = -math.inf
+        best_action = None
+        legal_actions = game_state.get_agent_legal_actions()
+        for action in legal_actions:
+            successor_game_state = game_state.generate_successor(action=action, agent_index=0)
+            new_value, _ = self.expectimax(successor_game_state, depth - 1, ExpectimaxPhase.expect)
+            if new_value > best_value:
+                best_value = new_value
+                best_action = action
+
+        return best_value, best_action
+
+    def expect_phase(self, game_state: GameState, depth: int):
+        legal_actions = game_state.get_opponent_legal_actions()
+        weighted_average = 0
+        for action in legal_actions:
+            action_probability = 1 / (len(legal_actions))  # "assume the board response uniformly at random"
+            successor_game_state = game_state.generate_successor(action=action, agent_index=1)
+            action_value, _ = self.expectimax(successor_game_state, depth - 1, ExpectimaxPhase.max)
+            weighted_average += action_probability * action_value
+
+        return weighted_average, None
+
     def expectimax(self, game_state: GameState, depth: int, phase: ExpectimaxPhase):
         if depth == 0 or game_state.done:
             return self.evaluation_function(game_state), None
 
-        if phase == ExpectimaxPhase.expect:
-            legal_actions = game_state.get_opponent_legal_actions()
-            weighted_average = 0
-            for action in legal_actions:
-                action_probability = 1 / (len(legal_actions))  # "assume the board response uniformly at random"
-                successor_game_state = game_state.generate_successor(action=action, agent_index=1)
-                action_value, _ = self.expectimax(successor_game_state, depth - 1, ExpectimaxPhase.max)
-                weighted_average += action_probability * action_value
-
-            return weighted_average, None
-
-        elif phase == ExpectimaxPhase.max:
-            best_value = -math.inf
-            best_action = None
-            legal_actions = game_state.get_agent_legal_actions()
-            for action in legal_actions:
-                successor_game_state = game_state.generate_successor(action=action)
-                action_value, _ = self.expectimax(successor_game_state, depth - 1, ExpectimaxPhase.expect)
-                if action_value > best_value:
-                    best_value = action_value
-                    best_action = action
-
-            return best_value, best_action
-
-        else:
-            raise Exception(f"phase {phase} not supported here.")
+        strategy_of_phase = {ExpectimaxPhase.max: self.max_phase, ExpectimaxPhase.expect: self.expect_phase}
+        return strategy_of_phase[phase](game_state, depth)
 
     def get_action(self, game_state):
         """

@@ -1,4 +1,5 @@
 import math
+import random
 from enum import auto, Enum
 from time import sleep
 
@@ -109,24 +110,24 @@ class MultiAgentSearchAgent(Agent):
         return
 
 
-class Phase(Enum):
-    max = auto()
+class MinimaxPhase(Enum):
     min = auto()
+    max = auto()
 
 
 class MinmaxAgent(MultiAgentSearchAgent):
 
-    def minimax(self, game_state: GameState, depth: int, phase: Phase):
+    def minimax(self, game_state: GameState, depth: int, phase: MinimaxPhase):
         if depth == 0:
             return self.evaluation_function(game_state), None
 
-        best_value = -math.inf if phase == Phase.max else math.inf
-        legal_actions = game_state.get_agent_legal_actions() if Phase.max else game_state.get_opponent_legal_actions()
+        best_value = -math.inf if phase == MinimaxPhase.max else math.inf
+        legal_actions = game_state.get_agent_legal_actions() if MinimaxPhase.max else game_state.get_opponent_legal_actions()
         for action in legal_actions:
             successor_game_state = game_state.generate_successor(action=action)
-            next_phase = Phase.min if phase == Phase.max else Phase.max
+            next_phase = MinimaxPhase.min if phase == MinimaxPhase.max else MinimaxPhase.max
             new_value, _ = self.minimax(successor_game_state, depth - 1, next_phase)
-            is_better = new_value > best_value if phase == Phase.max else new_value < best_value
+            is_better = new_value > best_value if phase == MinimaxPhase.max else new_value < best_value
             if is_better:
                 best_value = new_value
                 best_action = action
@@ -151,7 +152,7 @@ class MinmaxAgent(MultiAgentSearchAgent):
             Returns the successor game state after an agent takes an action
         """
 
-        _, best_action = self.minimax(game_state, self.depth, Phase.max)
+        _, best_action = self.minimax(game_state, self.depth, MinimaxPhase.max)
         return best_action
 
 
@@ -168,20 +169,57 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         util.raiseNotDefined()
 
 
+class ExpectimaxPhase(Enum):
+    expect = auto()
+    max = auto()
+
+
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
     Your expectimax agent (question 4)
     """
 
-    def get_action(self, game_state):
-        """
-        Returns the expectimax action using self.depth and self.evaluationFunction
+    def expectimax(self, game_state: GameState, depth: int, phase: MinimaxPhase):
+        if depth == 0:  # TODO: or terminal node
+            return self.evaluation_function(game_state), None
 
-        The opponent should be modeled as choosing uniformly at random from their
-        legal moves.
-        """
-        """*** YOUR CODE HERE ***"""
-        util.raiseNotDefined()
+        if phase == ExpectimaxPhase.expect:
+            legal_actions = game_state.get_opponent_legal_actions()
+            weighted_average = 0
+            for action in legal_actions:
+                action_probability = 1 / (len(legal_actions))  # "assume the board response uniformly at random"
+                successor_game_state = game_state.generate_successor(action=action)
+                action_value, _ = self.expectimax(successor_game_state, depth - 1, MinimaxPhase.max)
+                weighted_average += action_probability * action_value
+
+            return weighted_average, None
+
+        elif phase == ExpectimaxPhase.max:
+            best_value = -math.inf
+            best_action = None
+            legal_actions = game_state.get_agent_legal_actions()
+            for action in legal_actions:
+                successor_game_state = game_state.generate_successor(action=action)
+                action_value, _ = self.expectimax(successor_game_state, depth - 1, MinimaxPhase.expect)
+                if action_value > best_value:
+                    best_value = action_value
+                    best_action = action
+
+            return best_value, best_action
+
+        else:
+            raise Exception(f"phase {phase} not supported here.")
+
+
+def get_action(self, game_state):
+    """
+    Returns the expectimax action using self.depth and self.evaluationFunction
+
+    The opponent should be modeled as choosing uniformly at random from their
+    legal moves.
+    """
+    _, best_action = self.expectimax(game_state, self.depth, ExpectimaxPhase.max)
+    return best_action
 
 
 def better_evaluation_function(current_game_state):

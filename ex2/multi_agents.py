@@ -117,23 +117,38 @@ class MinimaxPhase(Enum):
 
 class MinmaxAgent(MultiAgentSearchAgent):
 
-    def minimax(self, game_state: GameState, depth: int, phase: MinimaxPhase):
-        if depth == 0 or game_state.done:  # TODO: terminal mode
-            return self.evaluation_function(game_state), None
-
-        best_value = -math.inf if phase == MinimaxPhase.max else math.inf
-        legal_actions = game_state.get_agent_legal_actions() if phase == MinimaxPhase.max else game_state.get_opponent_legal_actions()
+    def max_phase(self, game_state: GameState, depth: int):
+        best_value = -math.inf
+        best_action = None
+        legal_actions = game_state.get_agent_legal_actions()
         for action in legal_actions:
-            agent_index = 0 if phase == MinimaxPhase.max else 1
-            successor_game_state = game_state.generate_successor(action=action, agent_index=agent_index)
-            next_phase = MinimaxPhase.min if phase == MinimaxPhase.max else MinimaxPhase.max
-            new_value, _ = self.minimax(successor_game_state, depth - 1, next_phase)
-            is_better = new_value > best_value if phase == MinimaxPhase.max else new_value < best_value
-            if is_better:
+            successor_game_state = game_state.generate_successor(action=action, agent_index=0)
+            new_value, _ = self.minimax(successor_game_state, depth - 1, MinimaxPhase.min)
+            if new_value > best_value:
                 best_value = new_value
                 best_action = action
 
         return best_value, best_action
+
+    def min_phase(self, game_state: GameState, depth: int):
+        best_value = math.inf
+        best_action = None
+        legal_actions = game_state.get_opponent_legal_actions()
+        for action in legal_actions:
+            successor_game_state = game_state.generate_successor(action=action, agent_index=1)
+            new_value, _ = self.minimax(successor_game_state, depth - 1, MinimaxPhase.max)
+            if new_value < best_value:
+                best_value = new_value
+                best_action = action
+
+        return best_value, best_action
+
+    def minimax(self, game_state: GameState, depth: int, phase: MinimaxPhase):
+        if depth == 0 or game_state.done:
+            return self.evaluation_function(game_state), None
+
+        strategy_of_phase = {MinimaxPhase.max: self.max_phase, MinimaxPhase.min: self.max_phase}
+        return strategy_of_phase[phase](game_state, depth)
 
     def get_action(self, game_state):
         """

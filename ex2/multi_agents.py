@@ -9,7 +9,7 @@ import util
 from game import Agent, Action
 from typing import Callable, List, Tuple
 
-from ex2.game_state import GameState
+from game_state import GameState
 
 
 class ReflexAgent(Agent):
@@ -177,12 +177,46 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     Your minimax agent with alpha-beta pruning (question 3)
     """
 
+    def max_phase(self, game_state: GameState, depth: int, alpha: float, beta: float):
+        best_value = -math.inf
+        legal_actions = game_state.get_agent_legal_actions()
+
+        for action in legal_actions:
+            successor_game_state = game_state.generate_successor(action=action, agent_index=0)
+            new_value, _ = self.alphabeta(successor_game_state, depth - 1, alpha, beta, MinimaxPhase.min)
+            if new_value >= beta:
+                break
+            alpha = max(alpha, new_value)
+
+        return best_value, action
+
+    def min_phase(self, game_state: GameState, depth: int, alpha: float, beta: float):
+        best_value = math.inf
+        legal_actions = game_state.get_opponent_legal_actions()
+
+        for action in legal_actions:
+            successor_game_state = game_state.generate_successor(action=action, agent_index=1)
+            new_value, _ = self.alphabeta(successor_game_state, depth - 1, alpha, beta, MinimaxPhase.max)
+            if new_value <= alpha:
+                break
+            beta = min(beta, new_value)
+
+        return best_value, action
+
+    # TODO fail hard vs fail soft?
+    def alphabeta(self, game_state: GameState, depth: int, alpha: float, beta: float, phase: MinimaxPhase):
+        if depth == 0 or game_state.done:
+            return self.evaluation_function(game_state), None
+
+        strategy_of_phase = {MinimaxPhase.max: self.max_phase, MinimaxPhase.min: self.max_phase}
+        return strategy_of_phase[phase](game_state, depth, alpha, beta)
+
     def get_action(self, game_state):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-        """*** YOUR CODE HERE ***"""
-        util.raiseNotDefined()
+        best_value, action = self.alphabeta(game_state, self.depth, -math.inf, math.inf, MinimaxPhase.max)
+        return action
 
 
 class ExpectimaxPhase(Enum):

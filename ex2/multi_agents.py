@@ -122,7 +122,7 @@ class MinmaxAgent(MultiAgentSearchAgent):
             return self.evaluation_function(game_state), None
 
         best_value = -math.inf if phase == MinimaxPhase.max else math.inf
-        legal_actions = game_state.get_agent_legal_actions() if MinimaxPhase.max else game_state.get_opponent_legal_actions()
+        legal_actions = game_state.get_agent_legal_actions() if MinimaxPhase.max else game_state.get_opponent_legal_actions()  # TODO: fix
         for action in legal_actions:
             successor_game_state = game_state.generate_successor(action=action)  # TODO: agent index?
             next_phase = MinimaxPhase.min if phase == MinimaxPhase.max else MinimaxPhase.max

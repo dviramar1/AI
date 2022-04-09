@@ -9,7 +9,7 @@ import util
 from game import Agent, Action
 from typing import Callable, List, Tuple
 
-from ex2.game_state import GameState
+from game_state import GameState
 
 
 class ReflexAgent(Agent):
@@ -177,12 +177,35 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     Your minimax agent with alpha-beta pruning (question 3)
     """
 
+    # TODO fail hard vs fail soft
+    def alphabeta(self, game_state: GameState, depth: int, alpha, beta, phase: Phase):
+        if depth == 0:
+            return self.evaluation_function(game_state), None
+
+        best_value = -math.inf if phase == Phase.max else math.inf
+        legal_actions = game_state.get_agent_legal_actions() if Phase.max else game_state.get_opponent_legal_actions()
+
+        for action in legal_actions:
+            successor_game_state = game_state.generate_successor(action=action)
+            next_phase = Phase.min if phase == Phase.max else Phase.max
+            new_value, _ = self.alphabeta(successor_game_state, depth - 1, alpha, beta, next_phase)
+            if phase == Phase.max:
+                if new_value >= beta:
+                    break
+                alpha = max(alpha, new_value)
+            else:
+                if new_value <= alpha:
+                    break
+                beta = min(beta, new_value)
+
+        return best_value, action
+
     def get_action(self, game_state):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-        """*** YOUR CODE HERE ***"""
-        util.raiseNotDefined()
+        best_value, action = self.alphabeta(game_state, self.depth, -math.inf, math.inf, Phase.max)
+        return action
 
 
 class ExpectimaxPhase(Enum):

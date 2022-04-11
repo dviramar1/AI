@@ -134,6 +134,7 @@ class MinmaxAgent(MultiAgentSearchAgent):
         best_value = math.inf
         best_action = None
         legal_actions = game_state.get_opponent_legal_actions()
+
         for action in legal_actions:
             successor_game_state = game_state.generate_successor(action=action, agent_index=1)
             new_value, _ = self.minimax(successor_game_state, depth - 1, MinimaxPhase.max)
@@ -178,32 +179,38 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
 
     def max_phase(self, game_state: GameState, depth: int, alpha: float, beta: float):
-        value = -math.inf
+        best_value = -math.inf
+        best_action = None
         legal_actions = game_state.get_agent_legal_actions()
 
         for action in legal_actions:
             successor_game_state = game_state.generate_successor(action=action, agent_index=0)
             new_value, _ = self.alphabeta(successor_game_state, depth - 1, alpha, beta, MinimaxPhase.min)
-            value = max(value, new_value)
-            if value >= beta:
+            if new_value > best_value:
+                best_value = new_value
+                best_action = action
+            if best_value >= beta:  # pruning
                 break
-            alpha = max(alpha, value)
+            alpha = max(alpha, best_value)
 
-        return value, action
+        return best_value, best_action
 
     def min_phase(self, game_state: GameState, depth: int, alpha: float, beta: float):
-        value = math.inf
+        best_value = math.inf
+        best_action = None
         legal_actions = game_state.get_opponent_legal_actions()
 
         for action in legal_actions:
             successor_game_state = game_state.generate_successor(action=action, agent_index=1)
             new_value, _ = self.alphabeta(successor_game_state, depth - 1, alpha, beta, MinimaxPhase.max)
-            value = min(value, new_value)
-            if value <= alpha:
+            if new_value < best_value:
+                best_value = new_value
+                best_action = action
+            if best_value <= alpha:  # pruning
                 break
-            beta = min(beta, value)
+            beta = min(beta, best_value)
 
-        return value, action
+        return best_value, best_action
 
     # TODO fail hard vs fail soft?
     def alphabeta(self, game_state: GameState, depth: int, alpha: float, beta: float, phase: MinimaxPhase):

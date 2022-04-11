@@ -134,6 +134,7 @@ class MinmaxAgent(MultiAgentSearchAgent):
         best_value = math.inf
         best_action = None
         legal_actions = game_state.get_opponent_legal_actions()
+
         for action in legal_actions:
             successor_game_state = game_state.generate_successor(action=action, agent_index=1)
             new_value, _ = self.minimax(successor_game_state, depth - 1, MinimaxPhase.max)
@@ -147,7 +148,7 @@ class MinmaxAgent(MultiAgentSearchAgent):
         if depth == 0 or game_state.done:
             return self.evaluation_function(game_state), None
 
-        strategy_of_phase = {MinimaxPhase.max: self.max_phase, MinimaxPhase.min: self.max_phase}
+        strategy_of_phase = {MinimaxPhase.max: self.max_phase, MinimaxPhase.min: self.min_phase}
         return strategy_of_phase[phase](game_state, depth)
 
     def get_action(self, game_state):
@@ -179,36 +180,44 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
     def max_phase(self, game_state: GameState, depth: int, alpha: float, beta: float):
         best_value = -math.inf
+        best_action = None
         legal_actions = game_state.get_agent_legal_actions()
 
         for action in legal_actions:
             successor_game_state = game_state.generate_successor(action=action, agent_index=0)
             new_value, _ = self.alphabeta(successor_game_state, depth - 1, alpha, beta, MinimaxPhase.min)
-            if new_value >= beta:
+            if new_value > best_value:
+                best_value = new_value
+                best_action = action
+            if best_value >= beta:  # pruning
                 break
-            alpha = max(alpha, new_value)
+            alpha = max(alpha, best_value)
 
-        return best_value, action
+        return best_value, best_action
 
     def min_phase(self, game_state: GameState, depth: int, alpha: float, beta: float):
         best_value = math.inf
+        best_action = None
         legal_actions = game_state.get_opponent_legal_actions()
 
         for action in legal_actions:
             successor_game_state = game_state.generate_successor(action=action, agent_index=1)
             new_value, _ = self.alphabeta(successor_game_state, depth - 1, alpha, beta, MinimaxPhase.max)
-            if new_value <= alpha:
+            if new_value < best_value:
+                best_value = new_value
+                best_action = action
+            if best_value <= alpha:  # pruning
                 break
-            beta = min(beta, new_value)
+            beta = min(beta, best_value)
 
-        return best_value, action
+        return best_value, best_action
 
     # TODO fail hard vs fail soft?
     def alphabeta(self, game_state: GameState, depth: int, alpha: float, beta: float, phase: MinimaxPhase):
         if depth == 0 or game_state.done:
             return self.evaluation_function(game_state), None
 
-        strategy_of_phase = {MinimaxPhase.max: self.max_phase, MinimaxPhase.min: self.max_phase}
+        strategy_of_phase = {MinimaxPhase.max: self.max_phase, MinimaxPhase.min: self.min_phase}
         return strategy_of_phase[phase](game_state, depth, alpha, beta)
 
     def get_action(self, game_state):
@@ -269,6 +278,11 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         """
         _, best_action = self.expectimax(game_state, self.depth, ExpectimaxPhase.max)
         return best_action
+
+
+# TODO TODO TODO
+# depth level - one agent move and one opponent move
+# TODO TODO TODO
 
 
 def better_evaluation_function(current_game_state):

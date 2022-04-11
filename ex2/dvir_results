@@ -1,0 +1,148 @@
+    small_number = 10 ** 2
+    big_number = 10 ** 4
+    max_tile = 0
+
+    empty_tiles = small_number * len(current_game_state.get_empty_tiles())
+    tiles_diff = -tiles_diff_evaluation(current_game_state)
+    weight = weight_board(current_game_state)
+    weight = 0
+
+    if current_game_state.max_tile == current_game_state.board[3][3]:
+        max_tile = big_number
+
+    return weight + max_tile + empty_tiles + tiles_diff + current_game_state.score
+
+$ python 2048.py --agent=AlphaBetaAgent --depth=2 --evaluation_function=better --num_of_games=5 --display=SummaryDisplay
+score: 60804
+highest tile: 4096
+game_duration: 114.69952273368835
+score: 10056
+highest tile: 512
+game_duration: 35.18272376060486
+score: 10408
+highest tile: 512
+game_duration: 35.797065019607544
+score: 27172
+highest tile: 2048
+game_duration: 69.26702117919922
+score: 30724
+highest tile: 2048
+game_duration: 75.0207109451294
+==============================
+scores: [60804, 10056, 10408, 27172, 30724]
+highest tile: [4096, 512, 512, 2048, 2048]
+game_durations: [114.69952273368835, 35.18272376060486, 35.797065019607544, 69.26702117919922, 75.0207109451294]
+win rate: 0.6
+Press Enter to continue...
+
+    small_number = 10 ** 3
+$ python 2048.py --agent=AlphaBetaAgent --depth=2 --num_of_games=5 --display=SummaryDisplay
+score: 14616
+highest tile: 1024
+game_duration: 16.954164743423462
+score: 7084
+highest tile: 512
+game_duration: 12.671727657318115
+score: 3432
+highest tile: 256
+game_duration: 7.548936605453491
+score: 3368
+highest tile: 256
+game_duration: 7.851896286010742
+score: 10572
+highest tile: 1024
+game_duration: 14.004142045974731
+==============================
+scores: [14616, 7084, 3432, 3368, 10572]
+highest tile: [1024, 512, 256, 256, 1024]
+game_durations: [16.954164743423462, 12.671727657318115, 7.548936605453491, 7.851896286010742, 14.004142045974731]
+
+    # weight = 0
+$ python 2048.py --agent=AlphaBetaAgent --depth=2 --evaluation_function=better --num_of_games=5 --display=SummaryDisplay
+score: 7824
+highest tile: 512
+game_duration: 27.57398748397827
+score: 17764
+highest tile: 1024
+game_duration: 43.39285588264465
+score: 12704
+highest tile: 1024
+game_duration: 31.97107768058777
+score: 7916
+highest tile: 512
+game_duration: 25.30697727203369
+score: 6472
+highest tile: 512
+game_duration: 21.485967874526978
+==============================
+scores: [7824, 17764, 12704, 7916, 6472]
+highest tile: [512, 1024, 1024, 512, 512]
+game_durations: [27.57398748397827, 43.39285588264465, 31.97107768058777, 25.30697727203369, 21.48596787452697
+
+    big_number = 10 ** 5
+$ python 2048.py --agent=AlphaBetaAgent --depth=2 --evaluation_function=better --num_of_games=5 --display=SummaryDisplay
+score: 36128
+highest tile: 2048
+game_duration: 77.15007185935974
+score: 23908
+highest tile: 2048
+game_duration: 57.24138522148132
+score: 36608
+highest tile: 2048
+game_duration: 86.44868230819702
+score: 12444
+highest tile: 1024
+game_duration: 45.410985231399536
+score: 16608
+highest tile: 1024
+game_duration: 51.75591778755188
+==============================
+scores: [36128, 23908, 36608, 12444, 16608]
+highest tile: [2048, 2048, 2048, 1024, 1024]
+game_durations: [77.15007185935974, 57.24138522148132, 86.44868230819702, 45.410985231399536, 51.75591778755188]
+
+
+    small_number = 10 ** 3
+    big_number = 10 ** 5
+    $ python 2048.py --agent=AlphaBetaAgent --depth=2 --evaluation_function=better --num_of_games=5 --display=SummaryDisplay
+score: 5152
+highest tile: 256
+game_duration: 22.82186770439148
+score: 16204
+highest tile: 1024
+game_duration: 52.256717920303345
+score: 32444
+highest tile: 2048
+game_duration: 73.15711307525635
+score: 16740
+highest tile: 1024
+game_duration: 55.68583130836487
+score: 59032
+highest tile: 4096
+game_duration: 110.83532738685608
+==============================
+scores: [5152, 16204, 32444, 16740, 59032]
+highest tile: [256, 1024, 2048, 1024, 4096]
+game_durations: [22.82186770439148, 52.256717920303345, 73.15711307525635, 55.68583130836487, 110.83532738685608]
+
+    as the first one
+$ python 2048.py --agent=AlphaBetaAgent --depth=2 --evaluation_function=better --num_of_games=5 --display=SummaryDisplay
+score: 24756
+highest tile: 2048
+game_duration: 62.25787973403931
+score: 28360
+highest tile: 2048
+game_duration: 70.10351896286011
+score: 12740
+highest tile: 1024
+game_duration: 42.81813168525696
+score: 36184
+highest tile: 2048
+game_duration: 88.5600311756134
+score: 23164
+highest tile: 2048
+game_duration: 56.42142701148987
+==============================
+scores: [24756, 28360, 12740, 36184, 23164]
+highest tile: [2048, 2048, 1024, 2048, 2048]
+game_durations: [62.25787973403931, 70.10351896286011, 42.81813168525696, 88.5600311756134, 56.42142701148987]

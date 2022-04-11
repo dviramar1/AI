@@ -169,7 +169,7 @@ class MinmaxAgent(MultiAgentSearchAgent):
             Returns the successor game state after an agent takes an action
         """
 
-        _, best_action = self.minimax(game_state, self.depth, MinimaxPhase.max)
+        _, best_action = self.minimax(game_state, self.depth * 2, MinimaxPhase.max)
         return best_action
 
 
@@ -212,7 +212,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         return best_value, best_action
 
-    # TODO fail hard vs fail soft?
     def alphabeta(self, game_state: GameState, depth: int, alpha: float, beta: float, phase: MinimaxPhase):
         if depth == 0 or game_state.done:
             return self.evaluation_function(game_state), None
@@ -224,7 +223,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-        best_value, action = self.alphabeta(game_state, self.depth, -math.inf, math.inf, MinimaxPhase.max)
+        best_value, action = self.alphabeta(game_state, self.depth * 2, -math.inf, math.inf, MinimaxPhase.max)
         return action
 
 
@@ -276,13 +275,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         The opponent should be modeled as choosing uniformly at random from their
         legal moves.
         """
-        _, best_action = self.expectimax(game_state, self.depth, ExpectimaxPhase.max)
+        _, best_action = self.expectimax(game_state, self.depth * 2, ExpectimaxPhase.max)
         return best_action
-
-
-# TODO TODO TODO
-# depth level - one agent move and one opponent move
-# TODO TODO TODO
 
 
 def better_evaluation_function(current_game_state):

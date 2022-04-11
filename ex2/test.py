@@ -35,7 +35,7 @@ class MinimaxPhase(Enum):
     max = auto()
 
 
-class MinmaxAgent():
+class MinmaxAgent:
 
     def __init__(self, evaluation_function, depth=2):
         self.evaluation_function = evaluation_function
@@ -75,7 +75,7 @@ class MinmaxAgent():
         return strategy_of_phase[phase](game_state, depth)
 
 
-class AlphaBetaAgent(object):
+class AlphaBetaAgent:
     """
     Your minimax agent with alpha-beta pruning (question 3)
     """
@@ -85,53 +85,43 @@ class AlphaBetaAgent(object):
         self.depth = depth
 
     def max_phase(self, game_state: GameState, depth: int, alpha: float, beta: float):
-        value = -math.inf
+        best_value = -math.inf
+        best_action = None
         legal_actions = game_state.get_agent_legal_actions()
-
-        print('max')
-        print(game_state.node)
-        print(legal_actions)
 
         for action in legal_actions:
             successor_game_state = game_state.generate_successor(action=action, agent_index=0)
             new_value, _ = self.alphabeta(successor_game_state, depth - 1, alpha, beta, MinimaxPhase.min)
-            value = max(value, new_value)
-            print(action, value)
-            print(alpha, beta)
-            if value >= beta:
+            if new_value > best_value:
+                best_value = new_value
+                best_action = action
+            if best_value >= beta:
                 break
-            alpha = max(alpha, value)
-            print(alpha, beta)
-            print()
+            alpha = max(alpha, best_value)
 
-        return value, action
+        return best_value, best_action
 
     def min_phase(self, game_state: GameState, depth: int, alpha: float, beta: float):
-        value = math.inf
-        legal_actions = game_state.get_opponent_legal_actions()
 
-        print('min')
-        print(game_state.node)
-        print(legal_actions)
+        best_value = math.inf
+        best_action = None
+        legal_actions = game_state.get_opponent_legal_actions()
 
         for action in legal_actions:
             successor_game_state = game_state.generate_successor(action=action, agent_index=1)
             new_value, _ = self.alphabeta(successor_game_state, depth - 1, alpha, beta, MinimaxPhase.max)
-            value = min(value, new_value)
-            print(action, value)
-            print(alpha, beta)
-            if value <= alpha:
+            if new_value < best_value:
+                best_value = new_value
+                best_action = action
+            if best_value <= alpha:
                 break
-            beta = min(beta, value)
-            print(alpha, beta)
-            print()
+            beta = min(beta, best_value)
 
-        return value, action
+        return best_value, best_action
 
     # TODO fail hard vs fail soft?
     def alphabeta(self, game_state: GameState, depth: int, alpha: float, beta: float, phase: MinimaxPhase):
         if depth == 0 or game_state.done:
-            print('done: ', game_state.node)
             return self.evaluation_function(game_state), None
 
         strategy_of_phase = {MinimaxPhase.max: self.max_phase, MinimaxPhase.min: self.min_phase}
@@ -148,10 +138,7 @@ class AlphaBetaAgent(object):
 def main():
     state = TestState()
     agent = AlphaBetaAgent(evaluation_function=lambda x: x.nodes[x.node], depth=2)
-    # agent = MinmaxAgent(evaluation_function=lambda x:x.nodes[x.node], depth=2)
-
     print(agent.alphabeta(state, 2, -math.inf, math.inf, MinimaxPhase.max))
-    # print (agent.minimax(state, 2, MinimaxPhase.max))
 
 
 if __name__ == '__main__':

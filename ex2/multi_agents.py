@@ -274,7 +274,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         return best_action
 
 def weight_board(state: GameState):
-    weight = np.asanyarray([[1, 1, 2, 4], [1, 2, 8, 256], [2, 16, 128, 512], [32, 64, 1024, 2048]])
+    weight = np.asanyarray([[1, 1, 1, 4], [1, 2, 4, 32], [16, 32, 128, 256], [128, 256, 512, 1024]])
 
     sum = 0
 
@@ -296,26 +296,6 @@ def tiles_diff_evaluation(state: GameState):
 
     return sum
 
-def monontonic_evaluation(state: GameState):
-    board = state.board
-    mono = 0
-
-    for row in board:
-        diff = row[0] - row[1]
-        for j in range(state._num_of_columns - 1):
-            if (row[j] - row[j + 1]) * diff <= 0:
-                mono += 1
-            diff = row[j] - row[j + 1]
-
-    for i in range(state._num_of_rows):
-        diff = board[i][0] - board[i][1]
-        for j in range(state._num_of_columns - 1):
-            if (board[i][j] - board[i][j + 1]) * diff <= 0:
-                mono += 1
-            diff = board[i][j] - board[i][j + 1]
-
-    return mono
-
 def better_evaluation_function(current_game_state: GameState):
     """
     Your extreme 2048 evaluation function (question 5).
@@ -327,18 +307,15 @@ def better_evaluation_function(current_game_state: GameState):
     big_number = 10 ** 4
     max_tile = 0
 
-
     empty_tiles = small_number * len(current_game_state.get_empty_tiles())
     tiles_diff = -tiles_diff_evaluation(current_game_state)
     weight = weight_board(current_game_state)
     weight = 0
-    mono = small_number * monontonic_evaluation(current_game_state)
-    mono = 0
 
     if current_game_state.max_tile == current_game_state.board[3][3]:
         max_tile = big_number
 
-    return mono + weight + max_tile + empty_tiles + tiles_diff + current_game_state.score
+    return weight + max_tile + empty_tiles + tiles_diff + current_game_state.score
 
 
 # Abbreviation

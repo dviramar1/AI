@@ -298,31 +298,6 @@ def tiles_diff_score(state: GameState):
     return score / (2 * sum_tiles)
 
 
-def push_down_right_score(state):
-    board = state.board
-    num_tiles = len(np.where(board != 0))
-
-    tiles_problems = 0
-    for i in range(board.shape[0]):
-        row_zeros = [j for j in range(board.shape[1]) if board[i][j] == 0]
-        if len(row_zeros) == 0:
-            continue
-        row_right_zero = max(row_zeros)
-        row_tiles_left_to_zero = len([j for j in range(row_right_zero) if board[i][j] != 0])
-        tiles_problems += row_tiles_left_to_zero
-
-    tiles_problems = 0
-    for j in range(board.shape[1]):
-        col_zeros = [i for i in range(board.shape[0]) if board[i][j] == 0]
-        if len(col_zeros) == 0:
-            continue
-        col_down_zero = max(col_zeros)
-        col_tiles_up_to_zero = len([i for i in range(col_down_zero) if board[i][j] != 0])
-        tiles_problems += col_tiles_up_to_zero
-
-    return -tiles_problems / num_tiles
-
-
 def max_tile_dist_from_corner(state: GameState):
     board = state.board
 

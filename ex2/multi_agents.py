@@ -294,21 +294,21 @@ def weight_board(state: GameState):
     return sum
 
 
-def tiles_diff_evaluation(state: GameState):
+def tiles_diff_score(state: GameState):
     # TODO: check without counting zeros
-    sum = 0
 
-    for row in state.board:
-        for j in range(state._num_of_columns - 1):
-            # sum the diff between adjacent cells in different columns
-            sum += abs(row[j + 1] - row[j])
+    board = state.board
 
-    for i in range(state._num_of_rows - 1):
-        for j in range(state._num_of_columns):
-            # sum the diff between adjacent cells in different rows
-            sum += abs(state.board[i + 1][j] - state.board[i][j])
+    score = 0
+    for i in range(board.shape[0]):
+        for j in range(board.shape[1] - 1):
+            score -= abs(board[i][j + 1] - board[i][j])
 
-    return sum
+    for i in range(board.shape[0] - 1):
+        for j in range(board.shape[1]):
+            score -= abs(board[i + 1][j] - board[i][j])
+
+    return score
 
 
 def better_evaluation_function(current_game_state: GameState):
@@ -319,7 +319,7 @@ def better_evaluation_function(current_game_state: GameState):
     """
 
     empty_tiles = 10 ** 2 * len(current_game_state.get_empty_tiles())
-    tiles_diff = -tiles_diff_evaluation(current_game_state)
+    tiles_diff = tiles_diff_score(current_game_state)
 
     if current_game_state.max_tile == current_game_state.board[3][3]:
         max_in_corner = 10 ** 4

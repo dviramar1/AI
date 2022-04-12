@@ -11,7 +11,6 @@ import util
 from game import Agent, Action
 from typing import Callable, List, Tuple
 
-
 from game_state import GameState
 
 
@@ -281,7 +280,9 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         _, best_action = self.expectimax(game_state, self.depth * 2, ExpectimaxPhase.max)
         return best_action
 
+
 def weight_board(state: GameState):
+    # TODO: check it, maybe without the numbers
     weight = np.asanyarray([[1, 1, 1, 4], [1, 2, 4, 32], [16, 32, 128, 256], [128, 256, 512, 1024]])
 
     sum = 0
@@ -292,7 +293,9 @@ def weight_board(state: GameState):
 
     return sum
 
+
 def tiles_diff_evaluation(state: GameState):
+    # TODO: check without counting zeros
     sum = 0
 
     for row in state.board:
@@ -307,26 +310,23 @@ def tiles_diff_evaluation(state: GameState):
 
     return sum
 
+
 def better_evaluation_function(current_game_state: GameState):
     """
     Your extreme 2048 evaluation function (question 5).
 
     DESCRIPTION: <write something here so we know what you did>
     """
-    
-    small_number = 10 ** 2
-    big_number = 10 ** 4
-    max_tile = 0
 
-    empty_tiles = small_number * len(current_game_state.get_empty_tiles())
+    empty_tiles = 10 ** 2 * len(current_game_state.get_empty_tiles())
     tiles_diff = -tiles_diff_evaluation(current_game_state)
-    weight = weight_board(current_game_state)
-    weight = 0
 
     if current_game_state.max_tile == current_game_state.board[3][3]:
-        max_tile = big_number
+        max_in_corner = 10 ** 4
+    else:
+        max_in_corner = 0
 
-    return weight + max_tile + empty_tiles + tiles_diff + current_game_state.score
+    return max_in_corner + empty_tiles + tiles_diff + current_game_state.score
 
 
 # Abbreviation

@@ -295,11 +295,9 @@ def weight_board(state: GameState):
 
 
 def tiles_diff_score(state: GameState):
-    # TODO: check without counting zeros
-
     board = state.board
-
     score = 0
+
     for i in range(board.shape[0]):
         for j in range(board.shape[1] - 1):
             score -= abs(board[i][j + 1] - board[i][j])
@@ -354,8 +352,7 @@ def better_evaluation_function(current_game_state: GameState):
     tiles_diff = tiles_diff_score(current_game_state)
     max_in_corner = max_in_corner_score(current_game_state) * 10 ** 4
 
-    # push_down_right = push_down_right_score(current_game_state) #TODO: is needed?
-
+    # push_down_right = push_down_right_score(current_game_state) # TODO is needed
     return state_score + empty_tiles + tiles_diff + max_in_corner
 
 

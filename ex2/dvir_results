@@ -146,3 +146,69 @@ game_duration: 56.42142701148987
 scores: [24756, 28360, 12740, 36184, 23164]
 highest tile: [2048, 2048, 1024, 2048, 2048]
 game_durations: [62.25787973403931, 70.10351896286011, 42.81813168525696, 88.5600311756134, 56.42142701148987]
+
+
+$ python 2048.py --agent=AlphaBetaAgent --depth=2 --evaluation_function=better --num_of_games=5 --display=SummaryDisplay
+score: 27236
+highest tile: 2048
+game_duration: 59.35374975204468
+score: 28280
+highest tile: 2048
+game_duration: 60.04291248321533
+score: 36636
+highest tile: 2048
+game_duration: 71.11118698120117
+score: 32608
+highest tile: 2048
+game_duration: 66.70097017288208
+score: 27984
+highest tile: 2048
+game_duration: 69.2618248462677
+==============================
+scores: [27236, 28280, 36636, 32608, 27984]
+highest tile: [2048, 2048, 2048, 2048, 2048]
+game_durations: [59.35374975204468, 60.04291248321533, 71.11118698120117, 66.70097017288208, 69.2618248462677]
+
+      if board[i][j] != 0 
+$ python 2048.py --agent=AlphaBetaAgent --depth=2 --evaluation_function=better --num_of_games=5 --display=SummaryDisplay
+score: 22676
+highest tile: 2048
+game_duration: 50.59865188598633
+score: 21856
+highest tile: 2048
+game_duration: 55.93095374107361
+score: 26196
+highest tile: 2048
+game_duration: 67.80476188659668
+score: 32772
+highest tile: 2048
+game_duration: 74.79140901565552
+score: 16168
+highest tile: 1024
+game_duration: 45.15308952331543
+==============================
+scores: [22676, 21856, 26196, 32772, 16168]
+highest tile: [2048, 2048, 2048, 2048, 1024]
+game_durations: [50.59865188598633, 55.93095374107361, 67.80476188659668, 74.79140901565552, 45.15308952331543]
+
+      if board[i][j] != 0 and board[i][j + 1] != 0:
+$ python 2048.py --agent=AlphaBetaAgent --depth=2 --evaluation_function=better --num_of_games=5 --display=SummaryDisplay
+score: 17100
+highest tile: 1024
+game_duration: 51.14351725578308
+score: 18428
+highest tile: 1024
+game_duration: 56.40831422805786
+score: 26808
+highest tile: 2048
+game_duration: 75.17623519897461
+score: 38040
+highest tile: 2048
+game_duration: 93.1840410232544
+score: 16408
+highest tile: 1024
+game_duration: 54.34472298622131
+==============================
+scores: [17100, 18428, 26808, 38040, 16408]
+highest tile: [1024, 1024, 2048, 2048, 1024]
+game_durations: [51.14351725578308, 56.40831422805786, 75.17623519897461, 93.1840410232544, 54.34472298622131]

@@ -311,6 +311,37 @@ def tiles_diff_score(state: GameState):
     return score
 
 
+def push_down_right_score(state):
+    board = state.board
+    num_tiles = len(np.where(board != 0))
+
+    tiles_problems = 0
+    for i in range(board.shape[0]):
+        row_zeros = [j for j in range(board.shape[1]) if board[i][j] == 0]
+        if len(row_zeros) == 0:
+            continue
+        row_right_zero = max(row_zeros)
+        row_tiles_left_to_zero = len([j for j in range(row_right_zero) if board[i][j] != 0])
+        tiles_problems += row_tiles_left_to_zero
+
+    tiles_problems = 0
+    for j in range(board.shape[1]):
+        col_zeros = [i for i in range(board.shape[0]) if board[i][j] == 0]
+        if len(col_zeros) == 0:
+            continue
+        col_down_zero = max(col_zeros)
+        col_tiles_up_to_zero = len([i for i in range(col_down_zero) if board[i][j] != 0])
+        tiles_problems += col_tiles_up_to_zero
+
+    return -tiles_problems / num_tiles
+
+
+def max_in_corner_score(state: GameState):
+    if state.max_tile == state.board[3][3]:
+        return 1
+    return 0
+
+
 def better_evaluation_function(current_game_state: GameState):
     """
     Your extreme 2048 evaluation function (question 5).
@@ -318,15 +349,14 @@ def better_evaluation_function(current_game_state: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
 
-    empty_tiles = 10 ** 2 * len(current_game_state.get_empty_tiles())
+    state_score = current_game_state.score
+    empty_tiles = len(current_game_state.get_empty_tiles()) * 100
     tiles_diff = tiles_diff_score(current_game_state)
+    max_in_corner = max_in_corner_score(current_game_state) * 10 ** 4
 
-    if current_game_state.max_tile == current_game_state.board[3][3]:
-        max_in_corner = 10 ** 4
-    else:
-        max_in_corner = 0
+    # push_down_right = push_down_right_score(current_game_state) #TODO: is needed?
 
-    return max_in_corner + empty_tiles + tiles_diff + current_game_state.score
+    return state_score + empty_tiles + tiles_diff + max_in_corner
 
 
 # Abbreviation

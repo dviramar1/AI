@@ -281,22 +281,11 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         return best_action
 
 
-def weight_board(state: GameState):
-    # TODO: check it, maybe without the numbers
-    weight = np.asanyarray([[1, 1, 1, 4], [1, 2, 4, 32], [16, 32, 128, 256], [128, 256, 512, 1024]])
-
-    sum = 0
-
-    for i in range(state._num_of_rows):
-        for j in range(state._num_of_columns):
-            sum += state.board[i][j] * weight[i][j]
-
-    return sum
-
-
 def tiles_diff_score(state: GameState):
     board = state.board
     score = 0
+
+    sum_tiles = np.sum(board)
 
     for i in range(board.shape[0]):
         for j in range(board.shape[1] - 1):
@@ -306,7 +295,7 @@ def tiles_diff_score(state: GameState):
         for j in range(board.shape[1]):
             score -= abs(board[i + 1][j] - board[i][j])
 
-    return score
+    return score / (2 * sum_tiles)
 
 
 def push_down_right_score(state):
@@ -334,6 +323,20 @@ def push_down_right_score(state):
     return -tiles_problems / num_tiles
 
 
+def max_tile_dist_from_corner(state: GameState):
+    board = state.board
+
+    min_dist = math.inf
+    for row in range(board.shape[0]):
+        for col in range(board.shape[1]):
+            if board[row][col] == state.max_tile:
+                dist = (3 - row) + (3 - col)
+                if dist < min_dist:
+                    min_dist = dist
+
+    return -min_dist / 6
+
+
 def max_in_corner_score(state: GameState):
     if state.max_tile == state.board[3][3]:
         return 1
@@ -346,14 +349,21 @@ def better_evaluation_function(current_game_state: GameState):
 
     DESCRIPTION: <write something here so we know what you did>
     """
+    # if you can - put the maximum in the corner
+    max_in_corner = max_in_corner_score(current_game_state) * 10 ** 6
 
+    dist_from_corner = max_tile_dist_from_corner(current_game_state) * 10 ** 5
+
+    # merge big tiles
     state_score = current_game_state.score
-    empty_tiles = len(current_game_state.get_empty_tiles()) * 100
-    tiles_diff = tiles_diff_score(current_game_state)
-    max_in_corner = max_in_corner_score(current_game_state) * 10 ** 4
 
-    # push_down_right = push_down_right_score(current_game_state) # TODO is needed
-    return state_score + empty_tiles + tiles_diff + max_in_corner
+    norm_factor = current_game_state.max_tile / 2
+    # keep similar tiles close to each other
+    tiles_diff = tiles_diff_score(current_game_state) * norm_factor
+
+    return_value = state_score + dist_from_corner + max_in_corner + tiles_diff
+
+    return return_value
 
 
 # Abbreviation

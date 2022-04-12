@@ -1,6 +1,8 @@
+from cgitb import small
 import math
 import random
 from enum import auto, Enum
+from re import M
 from time import sleep
 
 import numpy as np
@@ -279,14 +281,52 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         return best_action
 
 
-def better_evaluation_function(current_game_state):
+def weight_board(state: GameState):
+    # TODO: check it, maybe without the numbers
+    weight = np.asanyarray([[1, 1, 1, 4], [1, 2, 4, 32], [16, 32, 128, 256], [128, 256, 512, 1024]])
+
+    sum = 0
+
+    for i in range(state._num_of_rows):
+        for j in range(state._num_of_columns):
+            sum += state.board[i][j] * weight[i][j]
+
+    return sum
+
+
+def tiles_diff_evaluation(state: GameState):
+    # TODO: check without counting zeros
+    sum = 0
+
+    for row in state.board:
+        for j in range(state._num_of_columns - 1):
+            # sum the diff between adjacent cells in different columns
+            sum += abs(row[j + 1] - row[j])
+
+    for i in range(state._num_of_rows - 1):
+        for j in range(state._num_of_columns):
+            # sum the diff between adjacent cells in different rows
+            sum += abs(state.board[i + 1][j] - state.board[i][j])
+
+    return sum
+
+
+def better_evaluation_function(current_game_state: GameState):
     """
     Your extreme 2048 evaluation function (question 5).
 
     DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    empty_tiles = 10 ** 2 * len(current_game_state.get_empty_tiles())
+    tiles_diff = -tiles_diff_evaluation(current_game_state)
+
+    if current_game_state.max_tile == current_game_state.board[3][3]:
+        max_in_corner = 10 ** 4
+    else:
+        max_in_corner = 0
+
+    return max_in_corner + empty_tiles + tiles_diff + current_game_state.score
 
 
 # Abbreviation

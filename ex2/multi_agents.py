@@ -294,13 +294,16 @@ def weight_board(state: GameState):
 
 def tiles_diff_evaluation(state: GameState):
     sum = 0
+
     for row in state.board:
         for j in range(state._num_of_columns - 1):
-            sum += abs(row[j] - row[j + 1])
+            # sum the diff between adjacent cells in different columns
+            sum += abs(row[j + 1] - row[j])
 
     for i in range(state._num_of_rows - 1):
         for j in range(state._num_of_columns):
-            sum += abs(state.board[i][j] - state.board[i + 1][j])
+            # sum the diff between adjacent cells in different rows
+            sum += abs(state.board[i + 1][j] - state.board[i][j])
 
     return sum
 

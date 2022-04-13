@@ -298,6 +298,23 @@ def tiles_diff_score(state: GameState):
     return score / (2 * sum_tiles)
 
 
+def mono_diff_score(state: GameState):
+    board = state.board
+    score = 0
+
+    sum_tiles = np.sum(board)
+
+    for i in range(board.shape[0]):
+        for j in range(board.shape[1] - 1):
+            score -= max(board[i][j] - board[i][j + 1], 0)
+
+    for i in range(board.shape[0] - 1):
+        for j in range(board.shape[1]):
+            score -= max(board[i][j] - board[i + 1][j], 0)
+
+    return score / (2 * sum_tiles)
+
+
 def max_tile_dist_from_corner(state: GameState):
     board = state.board
 
@@ -334,9 +351,10 @@ def better_evaluation_function(current_game_state: GameState):
 
     norm_factor = current_game_state.max_tile / 2
     # keep similar tiles close to each other
-    tiles_diff = tiles_diff_score(current_game_state) * norm_factor
+    tiles_diff = tiles_diff_score(current_game_state) * norm_factor / 2
+    mono_diff = mono_diff_score(current_game_state) / 2
 
-    return_value = state_score + dist_from_corner + max_in_corner + tiles_diff
+    return_value = state_score + dist_from_corner + max_in_corner + tiles_diff + mono_diff
 
     return return_value
 

@@ -282,6 +282,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
 
 def tiles_diff_score(state: GameState):
+    """ this score is high if similar tiles are close to each other. """
     board = state.board
     score = 0
 
@@ -299,6 +300,7 @@ def tiles_diff_score(state: GameState):
 
 
 def mono_diff_score(state: GameState):
+    """ this score is high if big tiles are right and down. """
     board = state.board
     score = 0
 
@@ -316,6 +318,7 @@ def mono_diff_score(state: GameState):
 
 
 def max_tile_dist_from_corner(state: GameState):
+    """ this score measures the distance of the maximal tile from the right-down corner. """
     board = state.board
 
     min_dist = math.inf
@@ -330,6 +333,7 @@ def max_tile_dist_from_corner(state: GameState):
 
 
 def max_in_corner_score(state: GameState):
+    """ this score checks if the max tile is in the corner. """
     if state.max_tile == state.board[3][3]:
         return 1
     return 0
@@ -339,21 +343,25 @@ def better_evaluation_function(current_game_state: GameState):
     """
     Your extreme 2048 evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: description in the body of the function and in the README.
     """
     # if you can - put the maximum in the corner
     max_in_corner = max_in_corner_score(current_game_state) * 10 ** 6
 
+    # compute the distance of the max tile from the corner
     dist_from_corner = max_tile_dist_from_corner(current_game_state) * 10 ** 5
 
     # merge big tiles
     state_score = current_game_state.score
 
+    # factor to scale evaluation scores during the game
     norm_factor = current_game_state.max_tile / 2
     # keep similar tiles close to each other
     tiles_diff = tiles_diff_score(current_game_state) * norm_factor / 2
+    # keep big tiles right and down
     mono_diff = mono_diff_score(current_game_state) / 2
 
+    # "All that is left is to mix the ingredients and put in the oven"
     return_value = state_score + dist_from_corner + max_in_corner + tiles_diff + mono_diff
 
     return return_value

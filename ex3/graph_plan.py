@@ -221,7 +221,7 @@ class GraphPlan(object):
         return True
 
 
-def independent_pair(a1, a2):
+def independent_pair(a1: Action, a2: Action):
     """
     Returns true if the actions are neither have inconsistent effects
     nor they interfere one with the other.
@@ -233,8 +233,16 @@ def independent_pair(a1, a2):
     a1.is_pos_effect(p) returns true is p is in a1.get_add()
     a1.is_neg_effect(p) returns true is p is in a1.get_delete()
     """
-    "*** YOUR CODE HERE ***"
 
+    for deleted in a1.get_delete():
+        if a2.is_pre_cond(deleted) or a2.is_pos_effect(deleted):
+            return True
+
+    for deleted in a2.get_delete():
+        if a1.is_pre_cond(deleted) or a1.is_pos_effect(deleted):
+            return True
+
+    return False
 
 if __name__ == '__main__':
     import sys

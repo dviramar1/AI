@@ -2,6 +2,7 @@ from action_layer import ActionLayer
 from util import Pair
 from proposition import Proposition
 from proposition_layer import PropositionLayer
+from action import Action
 
 
 class PlanGraphLevel(object):
@@ -138,14 +139,20 @@ def mutex_actions(a1, a2, mutex_props):
     return have_competing_needs(a1, a2, mutex_props)
 
 
-def have_competing_needs(a1, a2, mutex_props):
+def have_competing_needs(a1: Action, a2: Action, mutex_props):
     """
     Complete code for deciding whether actions a1 and a2 have competing needs,
     given the mutex proposition from previous level (list of pairs of propositions).
     Hint: for propositions p  and q, the command  "Pair(p, q) in mutex_props"
           returns true if p and q are mutex in the previous level
     """
-    "*** YOUR CODE HERE ***"
+
+    for a1_pre in a1.get_pre():
+        for a2_pre in a2.get_pre():
+            if (a1_pre, a2_pre) in mutex_props:
+                return True
+
+    return False
 
 
 def mutex_propositions(prop1, prop2, mutex_actions_list):

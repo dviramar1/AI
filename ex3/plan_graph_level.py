@@ -76,7 +76,6 @@ class PlanGraphLevel(object):
                 if PlanGraphLevel.not_mutex_props(previous_proposition_layer, pre):
                     self.action_layer.add_action(action)
 
-
     def update_mutex_actions(self, previous_layer_mutex_proposition):
         """
         Updates the mutex set in self.action_layer,
@@ -116,7 +115,7 @@ class PlanGraphLevel(object):
                 props_dict[prop].append(action)
 
         for prop, producers in props_dict.items():
-            new_prop = Proposition(prop.get_name()) # TODO check the proposition it gets
+            new_prop = Proposition(prop.get_name())  # TODO check the proposition it gets
             new_prop.set_producers(producers)
             self.proposition_layer.add_proposition(new_prop)
 
@@ -136,7 +135,6 @@ class PlanGraphLevel(object):
                 if mutex_propositions(p1, p2, current_layer_mutex_actions):
                     self.proposition_layer.add_mutex_prop(p1, p2)
 
-
     def expand(self, previous_layer):
         """
         Your algorithm should work as follows:
@@ -153,7 +151,6 @@ class PlanGraphLevel(object):
         self.update_mutex_actions(previous_layer_mutex_proposition)
         self.update_proposition_layer()
         self.update_mutex_proposition()
-
 
     def expand_without_mutex(self, previous_layer):
         """

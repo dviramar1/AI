@@ -131,7 +131,11 @@ class PlanGraphLevel(object):
         """
         current_layer_propositions = self.proposition_layer.get_propositions()
         current_layer_mutex_actions = self.action_layer.get_mutex_actions()
-        "*** YOUR CODE HERE ***"
+        for i, p1 in enumerate(current_layer_propositions):
+            for p2 in current_layer_propositions[(i + 1):]:
+                if mutex_propositions(p1, p2, current_layer_mutex_actions):
+                    self.proposition_layer.add_mutex_prop(p1, p2)
+
 
     def expand(self, previous_layer):
         """

@@ -1,3 +1,4 @@
+from collections import defaultdict
 from action_layer import ActionLayer
 from util import Pair
 from proposition import Proposition
@@ -106,8 +107,18 @@ class PlanGraphLevel(object):
         self.proposition_layer.add_proposition(prop) adds the proposition prop to the current layer
 
         """
+
+        props_dict = defaultdict(lambda: [])
+
         current_layer_actions = self.action_layer.get_actions()
-        "*** YOUR CODE HERE ***"
+        for action in current_layer_actions:
+            for prop in action.get_add():
+                props_dict[prop].append(action)
+
+        for prop, producers in props_dict.items():
+            new_prop = Proposition(prop.get_name()) # TODO check the proposition it gets
+            new_prop.set_producers(producers)
+            self.proposition_layer.add_proposition(new_prop)
 
     def update_mutex_proposition(self):
         """

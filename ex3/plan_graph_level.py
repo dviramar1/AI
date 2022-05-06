@@ -87,9 +87,10 @@ class PlanGraphLevel(object):
         Note that an action is *not* mutex with itself
         """
         current_layer_actions = self.action_layer.get_actions()
-        for i, a1 in enumerate(current_layer_actions):
-            for a2 in current_layer_actions[(i + 1):]:
-                if mutex_actions(a1, a2, previous_layer_mutex_proposition):
+        # we go over each pair twice but it is fine because of the sets-based implementation
+        for a1 in current_layer_actions:
+            for a2 in current_layer_actions:
+                if a1 != a2 and mutex_actions(a1, a2, previous_layer_mutex_proposition):
                     self.action_layer.add_mutex_actions(a1, a2)
 
     def update_proposition_layer(self):
@@ -130,9 +131,10 @@ class PlanGraphLevel(object):
         """
         current_layer_propositions = self.proposition_layer.get_propositions()
         current_layer_mutex_actions = self.action_layer.get_mutex_actions()
-        for i, p1 in enumerate(current_layer_propositions):
-            for p2 in current_layer_propositions[(i + 1):]:
-                if mutex_propositions(p1, p2, current_layer_mutex_actions):
+        # we go over each pair twice but it is fine because of the sets-based implementation
+        for p1 in current_layer_propositions:
+            for p2 in current_layer_propositions:
+                if p1 != p2 and mutex_propositions(p1, p2, current_layer_mutex_actions):
                     self.proposition_layer.add_mutex_prop(p1, p2)
 
     def expand(self, previous_layer):

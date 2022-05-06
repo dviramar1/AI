@@ -45,7 +45,16 @@ class PlanGraphLevel(object):
     def set_action_layer(self, action_layer):  # sets the action layer
         self.action_layer = action_layer
 
-    def update_action_layer(self, previous_proposition_layer):
+    @staticmethod
+    def not_mutex_props(proposition_layer, props):
+        for i, p1 in enumerate(props):
+            for p2 in props[(i + 1):]:
+                if proposition_layer.is_mutex(p1, p2):
+                    return False
+
+        return True
+
+    def update_action_layer(self, previous_proposition_layer: PropositionLayer):
         """
         Updates the action layer given the previous proposition layer (see proposition_layer.py)
         You should add an action to the layer if its preconditions are in the previous propositions layer,
@@ -59,7 +68,13 @@ class PlanGraphLevel(object):
         self.actionLayer.addAction(action) adds action to the current action layer
         """
         all_actions = PlanGraphLevel.actions
-        "*** YOUR CODE HERE ***"
+
+        for action in all_actions:
+            if previous_proposition_layer.all_preconds_in_layer(action):
+                pre = action.get_pre()
+                if PlanGraphLevel.not_mutex_props(previous_proposition_layer, pre):
+                    self.action_layer.add_action(action)
+
 
     def update_mutex_actions(self, previous_layer_mutex_proposition):
         """

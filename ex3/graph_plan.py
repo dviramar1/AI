@@ -236,13 +236,13 @@ def independent_pair(a1: Action, a2: Action):
 
     for deleted in a1.get_delete():
         if a2.is_pre_cond(deleted) or a2.is_pos_effect(deleted):
-            return True
+            return False
 
     for deleted in a2.get_delete():
         if a1.is_pre_cond(deleted) or a1.is_pos_effect(deleted):
-            return True
+            return False
 
-    return False
+    return True
 
 if __name__ == '__main__':
     import sys

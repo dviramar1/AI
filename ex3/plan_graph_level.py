@@ -149,7 +149,7 @@ def have_competing_needs(a1: Action, a2: Action, mutex_props):
 
     for a1_pre in a1.get_pre():
         for a2_pre in a2.get_pre():
-            if (a1_pre, a2_pre) in mutex_props:
+            if Pair(a1_pre, a2_pre) in mutex_props:
                 return True
 
     return False

@@ -134,17 +134,29 @@ def max_level(state, planning_problem: PlanningProblem):
         number_of_layers += 1
 
 
-def level_sum(state, planning_problem):
+def level_sum(state, planning_problem: PlanningProblem):
     """
     The heuristic value is the sum of sub-goals level they first appeared.
     If the goal is not reachable from the state your heuristic should return float('inf')
     """
 
     current_level = init_plan_graph_level(state, planning_problem)
+
+    goals_to_reach = set(planning_problem.goal)
+    sum_level = 0
+
     number_of_layers = 0
     while True:
-        if planning_problem.is_goal_state(current_level.get_proposition_layer().get_propositions()):
-            return number_of_layers
+        level_props = current_level.get_proposition_layer().get_propositions()
+        goals_to_reach_copy = goals_to_reach.copy()
+        for goal in goals_to_reach_copy:
+            if goal in level_props:
+                goals_to_reach.remove(goal)
+                sum_level += number_of_layers
+
+        if planning_problem.is_goal_state(level_props):
+            print(sum_level)
+            return sum_level
         next_level = PlanGraphLevel()
         next_level.expand_without_mutex(current_level)
         if len(next_level.get_proposition_layer().get_propositions()) == len(

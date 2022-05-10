@@ -1,5 +1,20 @@
 import sys
 
+from typing import List
+
+
+def write_to_file(lines: List[str], path: str):
+    lines = [line + "\n" for line in lines]
+    with open(path, 'w') as output_file:
+        output_file.writelines(lines)
+
+
+def get_action_lines(action):
+    return [f"Name: {action[0]}",
+            f"pre: {action[1]}",
+            f"add: {action[2]}",
+            f"delete: {action[3]}"]
+
 
 def create_domain_file(domain_file_name, n_, m_):
     disks = ['d_%s' % i for i in list(range(n_))]  # [d_0,..., d_(n_ - 1)]
@@ -19,14 +34,21 @@ def create_domain_file(domain_file_name, n_, m_):
         for src in elements:
             for dest in elements:
                 action_name = f"move_{disk}_from_{src}_to_{dest}"
-                action_pre = [f"{disk}_top", f"{dest}_top", f"{disk}_st_{dest}"]
+                action_pre = [f"{disk}_top", f"{dest}_top", f"{disk}_on_{src}", f"{disk}_st_{dest}"]
                 action_add = [f"{disk}_on_{dest}", f"{src}_top"]
                 action_delete = [f"{dest}_top", f"{disk}_on_{src}"]
                 actions.append((action_name, action_pre, action_add, action_delete))
 
-    domain_file = open(domain_file_name, 'w')  # use domain_file.write(str) to write to domain_file
+    props_lines = ["Propositions:",
+                   " ".join(propositions)]
 
-    domain_file.close()
+    actions_lines = ["Actions:"] + \
+                    [item for sublist in [get_action_lines(action) for action in actions] for item in
+                     sublist]
+
+    all_lines = props_lines + actions_lines
+
+    write_to_file(all_lines, domain_file_name)
 
 
 def create_problem_file(problem_file_name_, n_, m_):

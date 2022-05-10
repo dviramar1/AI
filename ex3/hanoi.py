@@ -7,11 +7,11 @@ def create_domain_file(domain_file_name, n_, m_):
     elements = disks + pegs
 
     # disk is on an element (on disk or directly on peg)
-    on_propositions = [f"{disk}_on_{element}" for disk, element in zip(disks, elements)]
+    on_propositions = [f"{disk}_on_{element}" for disk in disks for element in elements]
     # is disk on top of some peg
     top_propositions = [f"{element}_top" for element in elements]
     # is disk smaller than other disk (disk always smaller than peg)
-    smaller_than_propositions = [f"{disk}_st_{element}" for disk, element in zip(disks, elements)]
+    smaller_than_propositions = [f"{disk}_st_{element}" for disk in disks for element in elements]
     propositions = on_propositions + top_propositions + smaller_than_propositions
 
     actions = []

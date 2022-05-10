@@ -155,7 +155,6 @@ def level_sum(state, planning_problem: PlanningProblem):
                 sum_level += number_of_layers
 
         if planning_problem.is_goal_state(level_props):
-            print(sum_level)
             return sum_level
         next_level = PlanGraphLevel()
         next_level.expand_without_mutex(current_level)

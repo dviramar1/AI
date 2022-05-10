@@ -11,9 +11,9 @@ def write_to_file(lines: List[str], path: str):
 
 def get_action_lines(action):
     return [f"Name: {action[0]}",
-            f"pre: {action[1]}",
-            f"add: {action[2]}",
-            f"delete: {action[3]}"]
+            f"pre: {' '.join(action[1])}",
+            f"add: {' '.join(action[2])}",
+            f"delete: {' '.join(action[3])}"]
 
 
 def create_domain_file(domain_file_name, n_, m_):
@@ -54,10 +54,20 @@ def create_domain_file(domain_file_name, n_, m_):
 def create_problem_file(problem_file_name_, n_, m_):
     disks = ['d_%s' % i for i in list(range(n_))]  # [d_0,..., d_(n_ - 1)]
     pegs = ['p_%s' % i for i in list(range(m_))]  # [p_0,..., p_(m_ - 1)]
-    problem_file = open(problem_file_name_, 'w')  # use problem_file.write(str) to write to problem_file
-    "*** YOUR CODE HERE ***"
 
-    problem_file.close()
+    init_on_props = [f"d_{n_ - 1}_on_p_0"] + [f"d_{i}_on_d_{i + 1}" for i in range(n_ - 1)]
+    init_top_props = [f"d_0_top"] + [f"p_{i}_top" for i in range(1, m_)]
+    init_smaller_than_props = [f"d_{s_i}_st_d_{b_i}" for b_i in range(n_) for s_i in range(b_i)] + \
+                              [f"{disk}_st_{peg}" for disk in disks for peg in pegs]
+    init_props = init_on_props + init_top_props + init_smaller_than_props
+
+    goal_on_props = [f"d_{n_ - 1}_on_p_{m_ - 1}"] + [f"d_{i}_on_d_{i + 1}" for i in range(n_ - 1)]
+    goal_props = goal_on_props
+
+    problem_lines = [f"Initial state: {' '.join(init_props)}",
+                     f"Goal state: {' '.join(goal_props)}"]
+
+    write_to_file(problem_lines, problem_file_name)
 
 
 if __name__ == '__main__':

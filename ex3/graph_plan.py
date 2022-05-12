@@ -60,6 +60,7 @@ class GraphPlan(object):
 
         while self.goal_state_not_in_prop_layer(self.graph[level].get_proposition_layer().get_propositions()) or \
                 self.goal_state_has_mutex(self.graph[level].get_proposition_layer()):
+            print(len(self.graph[level].get_proposition_layer().get_propositions()))
             if self.is_fixed(level):
                 return None
                 # this means we stopped the while loop above because we reached a fixed point in the graph.
@@ -96,7 +97,6 @@ class GraphPlan(object):
         The backsearch part of graphplan that tries
         to extract a plan when all goal propositions exist in a graph plan level.
         """
-
         if level == 0:
             return []
         if sub_goals in self.no_goods[level]:

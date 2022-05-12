@@ -48,18 +48,7 @@ class PropositionLayer(object):
         action exist in this layer (i.e. the action can be applied)
         """
         action_pre = action.get_pre()
-        for pre in action_pre:
-            if not (pre in self.propositions):
-                return False
-
-        for i in range(len(action_pre)):
-            for j in range(i + 1, len(action_pre)):
-                pre1 = action_pre[i]
-                pre2 = action_pre[j]
-                if Pair(pre1, pre2) in self.mutexPropositions:
-                    return False
-
-        return True
+        return all(pre in self.propositions for pre in action_pre)
 
     def __eq__(self, other):
         return (isinstance(other, self.__class__)

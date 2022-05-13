@@ -116,7 +116,7 @@ class PlanGraphLevel(object):
                 props_dict[prop].append(action)
 
         for prop, producers in props_dict.items():
-            new_prop = Proposition(prop.get_name())  # TODO check the proposition it gets
+            new_prop = Proposition(prop.get_name())
             new_prop.set_producers(producers)
             self.proposition_layer.add_proposition(new_prop)
 

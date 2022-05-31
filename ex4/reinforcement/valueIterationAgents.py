@@ -9,6 +9,8 @@
 import mdp, util
 
 from learningAgents import ValueEstimationAgent
+from mdp import MarkovDecisionProcess
+import numpy as np
 
 class ValueIterationAgent(ValueEstimationAgent):
   """
@@ -19,7 +21,7 @@ class ValueIterationAgent(ValueEstimationAgent):
       for a given number of iterations using the supplied
       discount factor.
   """
-  def __init__(self, mdp, discount = 0.9, iterations = 100):
+  def __init__(self, mdp: MarkovDecisionProcess, discount = 0.9, iterations = 100):
     """
       Your value iteration agent should take an mdp on
       construction, run the indicated number of iterations
@@ -35,14 +37,26 @@ class ValueIterationAgent(ValueEstimationAgent):
     self.discount = discount
     self.iterations = iterations
     self.values = util.Counter() # A Counter is a dict with default 0
-     
+
     "*** YOUR CODE HERE ***"
+    self.learn_values()
+
+  def learn_values(self):
+    for i in range(self.iterations):
+      new_values = util.Counter()
+      for state in self.mdp.getStates():
+        if not self.mdp.isTerminal(state):
+          new_values[state] = max(self.getQValue(state, action) 
+                                  for action in self.mdp.getPossibleActions(state))
+      self.values = new_values
+
     
   def getValue(self, state):
     """
       Return the value of the state (computed in __init__).
     """
     return self.values[state]
+
 
   def getQValue(self, state, action):
     """
@@ -53,7 +67,13 @@ class ValueIterationAgent(ValueEstimationAgent):
       to derive it on the fly.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    states_and_probs = self.mdp.getTransitionStatesAndProbs(state, action)
+    return sum(prob * (self.mdp.getReward(state, action, next_state) + self.discount * self.values[next_state])
+               for next_state, prob in states_and_probs)
+
+  def get_expected_value(self, state, action):
+    states_and_probs = self.mdp.getTransitionStatesAndProbs(state, action)
+    return sum(prob * self.values[next_state] for next_state, prob in states_and_probs)
 
   def getPolicy(self, state):
     """
@@ -64,7 +84,12 @@ class ValueIterationAgent(ValueEstimationAgent):
       terminal state, you should return None.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    if (self.mdp.isTerminal(state)):
+      return None
+    actions = self.mdp.getPossibleActions(state)
+    max_index = np.argmax([self.get_expected_value(state, action) for action in actions])
+    return actions[max_index]
+
 
   def getAction(self, state):
     "Returns the policy at the state (no exploration)."

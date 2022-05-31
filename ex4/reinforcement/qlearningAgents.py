@@ -11,6 +11,7 @@ from learningAgents import ReinforcementAgent
 from featureExtractors import *
 
 import random,util,math
+import numpy as np
 
 class QLearningAgent(ReinforcementAgent):
   """
@@ -37,6 +38,7 @@ class QLearningAgent(ReinforcementAgent):
     "You can initialize Q-values here..."
     ReinforcementAgent.__init__(self, **args)
     "*** YOUR CODE HERE ***"
+    self.q_values = util.Counter()
 
   def getQValue(self, state, action):
     """
@@ -45,7 +47,7 @@ class QLearningAgent(ReinforcementAgent):
       a state or (state,action) tuple
     """
     "*** YOUR CODE HERE ***"    
-    util.raiseNotDefined()
+    return self.q_values[(state, action)]
 
 
   def getValue(self, state):
@@ -56,7 +58,10 @@ class QLearningAgent(ReinforcementAgent):
       terminal state, you should return a value of 0.0.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    legal_actions = self.getLegalActions(state)
+    if (len(legal_actions) == 0):
+      return 0.0
+    return max(self.getQValue(state, action) for action in legal_actions)
 
   def getPolicy(self, state):
     """
@@ -65,7 +70,10 @@ class QLearningAgent(ReinforcementAgent):
       you should return None.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    legal_actions = self.getLegalActions(state)
+    if (len(legal_actions) == 0):
+      return None
+    return legal_actions[np.argmax([self.getQValue(state, action) for action in legal_actions])]
 
   def getAction(self, state):
     """
@@ -81,8 +89,9 @@ class QLearningAgent(ReinforcementAgent):
     # Pick Action
     legalActions = self.getLegalActions(state)
     action = None
-    "*** YOUR CODE HERE ***"
-    return action
+    if util.flipCoin(self.epsilon):
+      return random.choice(legalActions)
+    return self.getPolicy(state)
 
   def update(self, state, action, nextState, reward):
     """
@@ -94,7 +103,9 @@ class QLearningAgent(ReinforcementAgent):
       it will be called on your behalf
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    self.q_values[(state, action)] = (1 - self.alpha) * self.q_values[(state, action)] + \
+                                      self.alpha * (reward + self.discount * self.getValue(nextState))
 
 class PacmanQAgent(QLearningAgent):
   "Exactly the same as QLearningAgent, but with different default parameters"

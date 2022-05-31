@@ -46,7 +46,7 @@ class ValueIterationAgent(ValueEstimationAgent):
       new_values = util.Counter()
       for state in self.mdp.getStates():
         if not self.mdp.isTerminal(state):
-          new_values[state] = max(self.getQValue(state, action) 
+          new_values[state] = max(self.get_expected_reward(state, action) + self.discount * self.getQValue(state, action) 
                                   for action in self.mdp.getPossibleActions(state))
       self.values = new_values
 
@@ -56,6 +56,10 @@ class ValueIterationAgent(ValueEstimationAgent):
       Return the value of the state (computed in __init__).
     """
     return self.values[state]
+
+  def get_expected_reward(self, state, action):
+    states_and_probs = self.mdp.getTransitionStatesAndProbs(state, action)
+    return sum(prob * self.mdp.getReward(state, action, next_state) for next_state, prob in states_and_probs)
 
 
   def getQValue(self, state, action):
@@ -67,11 +71,6 @@ class ValueIterationAgent(ValueEstimationAgent):
       to derive it on the fly.
     """
     "*** YOUR CODE HERE ***"
-    states_and_probs = self.mdp.getTransitionStatesAndProbs(state, action)
-    return sum(prob * (self.mdp.getReward(state, action, next_state) + self.discount * self.values[next_state])
-               for next_state, prob in states_and_probs)
-
-  def get_expected_value(self, state, action):
     states_and_probs = self.mdp.getTransitionStatesAndProbs(state, action)
     return sum(prob * self.values[next_state] for next_state, prob in states_and_probs)
 
@@ -87,7 +86,7 @@ class ValueIterationAgent(ValueEstimationAgent):
     if (self.mdp.isTerminal(state)):
       return None
     actions = self.mdp.getPossibleActions(state)
-    max_index = np.argmax([self.get_expected_value(state, action) for action in actions])
+    max_index = np.argmax([self.getQValue(state, action) for action in actions])
     return actions[max_index]
 
 

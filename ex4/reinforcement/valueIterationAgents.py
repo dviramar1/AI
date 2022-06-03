@@ -62,7 +62,6 @@ class ValueIterationAgent(ValueEstimationAgent):
     return sum(prob * self.mdp.getReward(state, action, next_state) for next_state, prob in states_and_probs)
 
 
-  # TODO should we include the reward in the q-value (also in qlearningAgents)
   def getQValue(self, state, action):
     """
       The q-value of the state action pair

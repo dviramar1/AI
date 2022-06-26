@@ -67,7 +67,7 @@ def create_problem_file(problem_file_name_, n_, m_):
     problem_lines = [f"Initial state: {' '.join(init_props)}",
                      f"Goal state: {' '.join(goal_props)}"]
 
-    write_to_file(problem_lines, problem_file_name)
+    write_to_file(problem_lines, problem_file_name_)
 
 
 if __name__ == '__main__':
